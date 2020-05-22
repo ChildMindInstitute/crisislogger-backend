@@ -1,0 +1,37 @@
+{
+  "name": "crisislogger-backend",
+  "version": "1.0.0",
+  "description": "crisislogger-backend",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run build & nodemon dist/index",
+    "start-dev": "npm run build & nodemon dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rimraf dist/ && babel ./ --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChildMindInstitute/crisislogger-backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ChildMindInstitute/crisislogger-backend/issues"
+  },
+  "homepage": "https://github.com/ChildMindInstitute/crisislogger-backend#readme",
+  "dependencies": {
+    "bcrypt": "^4.0.1",
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-jwt": "^5.3.3",
+    "mongodb": "^3.5.7",
+    "mongoose": "^5.9.15",
+    "nodemon": "^2.0.4"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "rimraf": "^3.0.2"
+  }
+}
