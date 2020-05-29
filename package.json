@@ -1,7 +1,7 @@
 {
-  "name": "crisislogger-backend",
+  "name": "pandemic-backend",
   "version": "1.0.0",
-  "description": "crisislogger-backend",
+  "description": "pandemic-backend",
   "main": "index.js",
   "scripts": {
     "start": "npm run build & nodemon dist/index",
@@ -11,20 +11,29 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ChildMindInstitute/crisislogger-backend.git"
+    "url": "git+https://github.com/RivieraMedia/pandemic-backend.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ChildMindInstitute/crisislogger-backend/issues"
+    "url": "https://github.com/RivieraMedia/pandemic-backend/issues"
   },
-  "homepage": "https://github.com/ChildMindInstitute/crisislogger-backend#readme",
+  "homepage": "https://github.com/RivieraMedia/pandemic-backend#readme",
   "dependencies": {
+    "@google-cloud/speech": "^3.6.0",
+    "@google-cloud/storage": "^5.0.1",
     "bcrypt": "^4.0.1",
     "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-fileupload": "^1.1.7-alpha.3",
     "express-jwt": "^5.3.3",
+    "ffmpeg-static": "^4.2.2",
+    "ffprobe": "^1.1.0",
+    "ffprobe-static": "^3.0.0",
+    "file-upload": "0.0.0",
+    "googleapis": "^51.0.0",
     "mongodb": "^3.5.7",
     "mongoose": "^5.9.15",
     "nodemon": "^2.0.4"

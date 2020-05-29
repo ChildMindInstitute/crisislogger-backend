@@ -1,0 +1,9 @@
+{
+    "presets": ["es2015"],
+    "ignore": [
+        "node_modules",
+        ".babelrc",
+        "package.json",
+        "npm-debug.log"
+    ]
+}

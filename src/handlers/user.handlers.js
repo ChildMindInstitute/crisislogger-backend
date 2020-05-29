@@ -9,24 +9,25 @@ export const userSignInHandler = async (req, res) => {
        let userObject = await UserService.login(body.email)
        let isAuth = bcrypt.compareSync(body.password, userObject.password)
        let token = await JWT.sign(
-           {role: userObject.role, userObject: body.email},
-           process.env.SECRET_KEY,
-           { expiresIn: 60 * 60 }
+           { role: userObject.role, userObject: body.email },
+           process.env.SECRET_KEY
        )
-       UserService.updateToken(token)
-       isAuth ? res.status(200).json(token): res.status(401).send('Auth wrong')
+       let newUser = UserService.updateToken(token)
+       isAuth ? res.status(200).json(newUser): res.status(401).send('Auth wrong')
     } catch(err) {
         res.status(500).send(err)
     }
 }
 
 export const userSignUpHandler = async (req, res) => {
+    res.set("Access-Control-Allow-Origin", "*");
     try {
         let body = req.body
         body.password = await bcrypt.hashSync(body.password, 10)
-        body.token = await JWT.sign({role: body.role, email: body.email}, process.env.SECRET_KEY, { expiresIn: 60 * 60 })
-        await UserService.register(body)
-        res.status(200).send(body.token)
+        body.token = await JWT.sign({role: body.role, email: body.email}, process.env.SECRET_KEY)
+        
+        let user = await UserService.register(body)
+        res.status(200).send(user)
     } catch(err) {
         if(err.name == 'MongoError') {
             res.status(400).send({ msg: 'Duplicate email', code: 1 })
