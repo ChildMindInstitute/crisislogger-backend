@@ -41,9 +41,9 @@ var userSignInHandler = exports.userSignInHandler = async function userSignInHan
             return res.status(401).json({ message: "User doesn't exist" });
         }
         var isAuth = _bcrypt2.default.compareSync(body.password, userObject.password);
-        var _token = await _jsonwebtoken2.default.sign({ role: userObject.role, userObject: body.email }, process.env.SECRET_KEY);
-        await _user2.default.updateToken(_token);
-        userObject.token = _token;
+        var token = await _jsonwebtoken2.default.sign({ role: userObject.role, userObject: body.email }, process.env.SECRET_KEY);
+        await _user2.default.updateToken(token);
+        userObject.token = token;
         console.log(isAuth);
         if (isAuth) {
             return res.status(200).json({ user: userObject });
@@ -84,7 +84,8 @@ var getAllRecords = exports.getAllRecords = async function getAllRecords(req, re
         }
         var uploads = await uploadService.getUserUploads(user._id);
         var texts = await textModelService.getUserTexts(user._id);
-        return res.status(200).json({ user: token });
+
+        return res.status(200).json({ records: { uploads: uploads, texts: texts } });
     } catch (err) {
         if (err.name == 'MongoError') {
             return res.status(400).json({ message: 'The email address already exist', code: 1 });

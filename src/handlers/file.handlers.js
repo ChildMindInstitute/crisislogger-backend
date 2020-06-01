@@ -5,20 +5,50 @@ import { GenerateAudioFromVideo } from '../api/videoConvert'
 import TextService from '../database/services/text.service'
 import TranscriptionModelService from '../database/services/transcription.service'
 import UploadTableService from '../database/services/uploadTable.service'
+import UserService from "../database/services/user.service";
 import fs, { writeFile } from 'fs'
 import { v1} from 'uuid'
+import JWT from 'jsonwebtoken'
 const UploadService = new UploadTableService()
 const TranscriptionService = new TranscriptionModelService()
 const TextDBService = new TextService()
 const gcs = "gs://"+process.env["BUCKET_NAME "];
+
 export const uploadFileHandle = async (req, res) => {
+
+    let token = req.headers['x-access-token'] || req.headers['authorization']; // Express headers are auto converted to lowercase
+    if (token.startsWith('Bearer ')) {
+        // Remove Bearer from string
+        token = token.slice(7, token.length);
+    }
+    let user = {};
+    if (token) {
+        JWT.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+            if (err) {
+                return res.json({
+                    success: false,
+                    message: 'Token is not valid'
+                });
+            } else {
+                req.decoded = decoded;
+
+            }
+        });
+    }
+    if (req.decoded)
+    {
+        user = await UserService.login(req.decoded.userObject);
+        if (!user)
+        {
+            return res.status(401).json({message : 'User does not exist'})
+        }
+    }
     const uploadDir = './uploads/';
     if(!req.files) {
-        return res.status(400).send({
+        return res.status(400).json({
             message: 'No file uploaded'
         })
     } else {
-        console.log(req.body)
         let file = req.files.file
         let name = v1();
         let extension = file.mimetype.split('/')[1]
@@ -32,7 +62,7 @@ export const uploadFileHandle = async (req, res) => {
                 const result = await uploadFile(filename, audioPath,  file.mimetype)
                 if (!result.success)
                 {
-                    return  res.status(500).send('File upload failed, please try again later')
+                    return  res.status(500).json({message : 'File upload failed, please try again later'})
                 }
                 uploadObj = await UploadService.createTable({
                     name: filename,
@@ -46,13 +76,14 @@ export const uploadFileHandle = async (req, res) => {
                     share: req.body.publicly,
                     contribute_to_science: req.body.contribute_to_science,
                     created_at: new Date(),
+                    user_id: (user._id !== undefined? user._id: null),
                     converted: file.mimetype === 'audio/mpeg' || file.mimetype === 'audio/vnd.wave' ? 0 : 1,
                 })
             } catch(err) {
                 console.log(err)
-                return   res.status(500).send(err)
+                return   res.status(500).json({message: err})
             }
-            if(err)  return  res.status(500).send('Error with save file')
+            if(err)  return  res.status(500).json({message : 'Error with save file'})
             setTimeout(async () => {
                 if(extension !=='mp3' && extension !=='wav') {
                     try {
@@ -74,12 +105,13 @@ export const uploadFileHandle = async (req, res) => {
                                 share: req.body.publicly,
                                 contribute_to_science: req.body.contribute_to_science,
                                 created_at: new Date(),
+                                user_id: (user._id !== undefined? user._id: null),
                                 converted: file.mimetype === 'audio/mpeg' || file.mimetype === 'audio/vnd.wave' ? 0 : 1,
                             })
                         }
                     } catch(err) {
                         console.log(err)
-                        return  res.status(500).send('Error with convert file')
+                        return  res.status(500).json({message: 'Error with convert file'})
                     }
                 }
 
@@ -88,7 +120,7 @@ export const uploadFileHandle = async (req, res) => {
                     let transcription = await googleSpeechTranscription(audioFilePath)
                     let transcriptionObj = TranscriptionService.createTable({
                         upload_id: uploadObj !== undefined? uploadObj._id: null,
-                        user_id: '',
+                        user_id: (user._id !== undefined? user._id: null),
                         text: transcription.transcriptText,
                         created_at: Date.now()
                     })
@@ -96,7 +128,7 @@ export const uploadFileHandle = async (req, res) => {
 
                 } catch(err) {
                     console.log(err)
-                    return   res.status(500).send('Error with transcription')
+                    return   res.status(500).json({message: 'Error with transcription'})
                 }
                 if (fs.existsSync(audioPath))
                 {
@@ -106,7 +138,7 @@ export const uploadFileHandle = async (req, res) => {
                 {
                     fs.unlinkSync(uploadDir+ filename)
                 }
-                return  res.send({ upload_id: uploadObj._id })
+                return  res.json({ upload_id: uploadObj._id })
             }, 1000)
         })
     }
@@ -115,6 +147,32 @@ export const uploadFileHandle = async (req, res) => {
 
 export const uploadTextHandle = async (req, res) => {
     try {
+        let token = req.headers['x-access-token'] || req.headers['authorization']; // Express headers are auto converted to lowercase
+        if (token.startsWith('Bearer ')) {
+            // Remove Bearer from string
+            token = token.slice(7, token.length);
+        }
+        let user = {};
+        if (token) {
+            JWT.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+                if (err) {
+                    return res.json({
+                        success: false,
+                        message: 'Token is not valid'
+                    });
+                } else {
+                    req.decoded = decoded;
+                }
+            });
+        }
+        if (req.decoded)
+        {
+            user = await UserService.login(req.decoded.userObject);
+            if (!user)
+            {
+                return res.status(401).json({message : 'User does not exist'})
+            }
+        }
         const text = await TextDBService.createTable({
             text: req.body.text,
             share: req.body.share,
@@ -122,11 +180,12 @@ export const uploadTextHandle = async (req, res) => {
             contribute_to_science: req.body.contribute_to_science,
             rank: req.body.rank,
             hide:  req.body.publicly === '2',
-            created_at: Date.now()
+            created_at: Date.now(),
+            user_id: (user._id !== undefined? user._id: null)
         })
-        return  res.send({ upload_id: text._id })
+        return  res.json({ upload_id: text._id })
     } catch(err) {
         console.log(err)
-        return  res.status(500).send()
+        return  res.status(500).json({message: err})
     }
 }

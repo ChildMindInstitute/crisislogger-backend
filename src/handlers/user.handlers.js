@@ -65,7 +65,8 @@ export const getAllRecords  = async (req, res) => {
         }
         let uploads = await  uploadService.getUserUploads(user._id)
         let texts = await  textModelService.getUserTexts(user._id)
-        return res.status(200).json({user : token})
+
+        return res.status(200).json({records : {uploads: uploads, texts: texts}})
     } catch(err) {
         if(err.name == 'MongoError') {
             return  res.status(400).json({ message: 'The email address already exist', code: 1 })
