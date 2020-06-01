@@ -24,14 +24,8 @@ export const uploadFileHandle = async (req, res) => {
     let user = {};
     if (token) {
         JWT.verify(token, process.env.SECRET_KEY, (err, decoded) => {
-            if (err) {
-                return res.json({
-                    success: false,
-                    message: 'Token is not valid'
-                });
-            } else {
+           if(!err) {
                 req.decoded = decoded;
-
             }
         });
     }
@@ -155,12 +149,7 @@ export const uploadTextHandle = async (req, res) => {
         let user = {};
         if (token) {
             JWT.verify(token, process.env.SECRET_KEY, (err, decoded) => {
-                if (err) {
-                    return res.json({
-                        success: false,
-                        message: 'Token is not valid'
-                    });
-                } else {
+                if(!err) {
                     req.decoded = decoded;
                 }
             });

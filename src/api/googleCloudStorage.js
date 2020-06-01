@@ -24,4 +24,4 @@ export const getPublicURL = () =>
 {
     return `https://storage.googleapis.com/${bucketName}/`;
 }
-createBucket().catch(console.error)
+// createBucket().catch(console.error)
