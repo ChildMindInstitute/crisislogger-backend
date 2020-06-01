@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="835f8f16-966a-48f9-b6d9-2bc323d11a25" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/dist/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/dist/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/dist/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/src/database/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/src/database/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/src/database/models/user.model.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/src/database/models/user.model.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/src/handlers/user.handlers.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/src/handlers/user.handlers.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/src/routes/user.routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/src/routes/user.routes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/googleCloudStorage.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/googleCloudStorage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/googleSpeech.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/googleSpeech.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/videoConvert.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/videoConvert.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/models/text.model.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/models/text.model.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/models/transcription.model.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/models/transcription.model.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/models/uploadTable.model.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/models/uploadTable.model.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/models/user.model.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/models/user.model.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/services/text.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/services/text.service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/services/transcription.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/services/transcription.service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/services/uploadTable.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/services/uploadTable.service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/handlers/file.handlers.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/file.handlers.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/handlers/user.handlers.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/user.handlers.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/file.routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/file.routes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/user.routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/user.routes.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1cXZ7cDTPsyOfG55c4hSevv1bep" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/database/models" />
+    <property name="nodejs_package_manager_path" value="npm" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/database/models" />
+      <recent name="$PROJECT_DIR$/src/database/services" />
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="835f8f16-966a-48f9-b6d9-2bc323d11a25" name="Default Changelist" comment="" />
+      <created>1590676731448</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1590676731448</updated>
+      <workItem from="1590676735663" duration="80000" />
+      <workItem from="1590758472665" duration="1113000" />
+      <workItem from="1590835765353" duration="4197000" />
+      <workItem from="1590842316404" duration="39021000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="710" y="332" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1590892747785">
+      <screen x="0" y="23" width="1920" height="1001" />
+    </state>
+    <state x="710" y="332" key="#com.intellij.fileTypes.FileTypeChooser/0.23.1920.1001@0.23.1920.1001" timestamp="1590892747785" />
+    <state x="100" y="123" width="1720" height="801" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1590928619012">
+      <screen x="0" y="23" width="1920" height="1001" />
+    </state>
+    <state x="100" y="123" width="1720" height="801" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.23.1920.1001@0.23.1920.1001" timestamp="1590928619012" />
+    <state x="667" y="278" width="586" height="490" key="find.popup" timestamp="1590892811670">
+      <screen x="0" y="23" width="1920" height="1001" />
+    </state>
+    <state x="667" y="278" width="586" height="490" key="find.popup/0.23.1920.1001@0.23.1920.1001" timestamp="1590892811670" />
+    <state x="625" y="242" key="run.anything.popup" timestamp="1590907232717">
+      <screen x="0" y="23" width="1920" height="1001" />
+    </state>
+    <state x="625" y="242" key="run.anything.popup/0.23.1920.1001@0.23.1920.1001" timestamp="1590907232717" />
+    <state x="625" y="244" width="670" height="676" key="search.everywhere.popup" timestamp="1590891986032">
+      <screen x="0" y="23" width="1920" height="1001" />
+    </state>
+    <state x="625" y="244" width="670" height="676" key="search.everywhere.popup/0.23.1920.1001@0.23.1920.1001" timestamp="1590891986032" />
+  </component>
+</project>

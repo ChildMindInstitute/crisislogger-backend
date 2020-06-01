@@ -1,7 +1,7 @@
 {
-  "name": "pandemic-backend",
+  "name": "crisislogger-backend",
   "version": "1.0.0",
-  "description": "pandemic-backend",
+  "description": "crisislogger-backend",
   "main": "index.js",
   "scripts": {
     "start": "npm run build & nodemon dist/index",
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RivieraMedia/pandemic-backend.git"
+    "url": "git+https://github.com/RivieraMedia/crisislogger-backend.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/RivieraMedia/pandemic-backend/issues"
+    "url": "https://github.com/ChildMindInstitute/crisislogger-backend/issues"
   },
-  "homepage": "https://github.com/RivieraMedia/pandemic-backend#readme",
+  "homepage": "https://github.com/ChildMindInstitute/crisislogger-backend#readme",
   "dependencies": {
     "@google-cloud/speech": "^3.6.0",
     "@google-cloud/storage": "^5.0.1",
@@ -36,7 +36,8 @@
     "googleapis": "^51.0.0",
     "mongodb": "^3.5.7",
     "mongoose": "^5.9.15",
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.4",
+    "uuid": "^8.1.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

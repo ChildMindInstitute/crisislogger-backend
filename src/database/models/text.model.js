@@ -17,4 +17,6 @@ const textSchema = new Schema({
     hide: { type: Boolean, default: true }
 })
 
-const Text = Model('Text', textSchema) 
+const Text = Model('Text', textSchema)
+
+export  default  Text

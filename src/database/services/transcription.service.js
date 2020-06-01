@@ -1,10 +1,10 @@
-import transcriptionModel from '../models/transcription.model'
+import TranscriptionModel from '../models/transcription.model'
 
-class transcriptionModelService {
+class TranscriptionModelService {
     createTable(createObj) {
-        const obj = new transcriptionModel(createObj)
+        const obj = new TranscriptionModel(createObj)
         return obj.save()
     }
 }
 
-export default transcriptionModelService
+export default TranscriptionModelService

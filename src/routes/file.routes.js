@@ -6,5 +6,6 @@ router.use(express.json())
 
 router.post('/upload', handlers.uploadFileHandle)
 
+router.post('/text', handlers.uploadTextHandle)
 export default router
 

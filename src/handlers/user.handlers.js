@@ -2,20 +2,36 @@ import UserService from '../database/services/user.service'
 import bcrypt from 'bcrypt'
 import JWT from 'jsonwebtoken'
 import User from '../database/models/user.model'
-
+import UploadTableService from "../database/services/uploadTable.service";
+import TextService from "../database/services/text.service";
+const uploadService = new UploadTableService()
+const textModelService = new TextService()
 export const userSignInHandler = async (req, res) => {
     try {
        let body = req.body
        let userObject = await UserService.login(body.email)
+        if (userObject === null)
+        {
+            return res.status(401).json({message : "User doesn't exist"});
+        }
        let isAuth = bcrypt.compareSync(body.password, userObject.password)
        let token = await JWT.sign(
            { role: userObject.role, userObject: body.email },
            process.env.SECRET_KEY
        )
-       let newUser = UserService.updateToken(token)
-       isAuth ? res.status(200).json(newUser): res.status(401).send('Auth wrong')
+        await UserService.updateToken(token)
+        userObject.token = token;
+        console.log(isAuth)
+        if (isAuth)
+        {
+            return res.status(200).json({user: userObject})
+        }
+        else {
+            return res.status(401).json({message: 'Auth wrong'})
+        }
     } catch(err) {
-        res.status(500).send(err)
+        console.log(err)
+        return res.status(500).json({message: err})
     }
 }
 
@@ -27,22 +43,43 @@ export const userSignUpHandler = async (req, res) => {
         body.token = await JWT.sign({role: body.role, email: body.email}, process.env.SECRET_KEY)
         
         let user = await UserService.register(body)
-        res.status(200).send(user)
+        return res.status(200).json({user : user})
     } catch(err) {
         if(err.name == 'MongoError') {
-            res.status(400).send({ msg: 'Duplicate email', code: 1 })
+            return  res.status(400).json({ message: 'The email address already exist', code: 1 })
         }
-        res.status(500).send(err)
+        return res.status(500).json({message: err})
     }
 }
-
+export const getAllRecords  = async (req, res) => {
+    try {
+        let data = req.decoded
+        if (!data.userObject)
+        {
+            return res.status(401).json({message : 'User information not found'})
+        }
+        let user = await UserService.login(data.userObject);
+        if (!user)
+        {
+            return res.status(401).json({message : 'User does not exist'})
+        }
+        let uploads = await  uploadService.getUserUploads(user._id)
+        let texts = await  textModelService.getUserTexts(user._id)
+        return res.status(200).json({user : token})
+    } catch(err) {
+        if(err.name == 'MongoError') {
+            return  res.status(400).json({ message: 'The email address already exist', code: 1 })
+        }
+        return res.status(500).json({message: err})
+    }
+}
 export const userDeleteHandler = async (req, res) => {
     try {
         let id = req.params.id
         await UserService.delete(id)
-        res.status(200).send()
+        return res.status(200).json()
     } catch(err){
-        res.status(500).send()
+        return res.status(500).json()
     }
 }
 
@@ -51,9 +88,9 @@ export const userUpdateHandler = async (req, res) => {
         let id = req.params.id
         let userObject = req.body
         await UserService.update(id, userObject)
-        res.status(200).send()
+        return  res.status(200).json({success: true})
     }catch(err) {
-        res.status(500).send()
+        return res.status(500).json({success: false})
     }
 }
 

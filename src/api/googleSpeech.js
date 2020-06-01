@@ -2,34 +2,33 @@ import { storage } from './googleCloudStorage'
 import speech from '@google-cloud/speech'
 import fs from 'fs'
 
-export const googleSpeechTranscription = async (fileName) => {
+export const googleSpeechTranscription = async (gcsFilePath) => {
     const client = new speech.SpeechClient();
-
-    const file = fs.readFileSync(fileName)
-    const audioBytes = file.toString('base64')
-
-    const audio = {
-        content: audioBytes
+    if (!gcsFilePath.length || fs.existsSync(gcsFilePath))
+    {
+        return {
+            transcriptText: null
+        }
     }
-
+    let  audio  = {
+        uri: gcsFilePath
+    }
     const config = {
-        encoding: 'LINEAR16',
+        encoding: 'ENCODING_UNSPECIFIED',
         sampleRateHertsz: 16000,
+        audioChannelCount: 1,
         languageCode: 'en-US',
     };
 
     const request = {
-        audio,
-        config
+        audio: audio,
+        config: config
     }
-
-    const [response] = await client.recognize(request)
-
+    const [operation] = await client.longRunningRecognize(request)
+    const [response] = await operation.promise()
     const transcription = response.results
         .map(result => result.alternatives[0].transcript)
         .join('\n')
-
-
     return {
         transcriptText: transcription
     }

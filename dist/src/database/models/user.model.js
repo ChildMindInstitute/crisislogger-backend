@@ -17,7 +17,16 @@ var userSchema = new Schema({
     name: String,
     email: { type: String, unique: true },
     password: String,
-    role: Number
+    role: Number,
+    token: String,
+    referral_code: String,
+    country: String,
+    uploads: [{
+        type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Uploads'
+    }],
+    texts: [{
+        type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Text'
+    }]
 });
 
 var User = Model('User', userSchema);

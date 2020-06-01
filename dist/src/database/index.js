@@ -10,7 +10,14 @@ var _mongoose2 = _interopRequireDefault(_mongoose);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-_mongoose2.default.connect(process.env.DATABASE_URL, { useNewUrlParser: true });
+var option = {
+    socketTimeoutMS: 30000,
+    keepAlive: true,
+    reconnectTries: 30000,
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+};
+_mongoose2.default.connect(process.env.DATABASE_URL, option);
 
 var db = _mongoose2.default.connection;
 
@@ -19,7 +26,7 @@ db.on('error', function (err) {
 });
 
 db.on('open', function () {
-    console.log('Database sucsses connection');
+    console.log('Database success connection');
 });
 
 exports.default = db;

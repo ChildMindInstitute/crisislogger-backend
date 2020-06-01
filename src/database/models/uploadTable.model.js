@@ -24,9 +24,12 @@ const uploadTableSchema = new Schema({
     },
     rank: Number,
     original_name: String,
-    hide: { type: Boolean, default: true }
-}) 
+    hide: { type: Boolean, default: true },
+    transcripts: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'Transcription'
+    },
+})
 
-const uploadTable = Model('uploadTable', uploadTableSchema)
+const UploadTable = Model('uploads', uploadTableSchema)
 
-export default uploadTable
+export default UploadTable

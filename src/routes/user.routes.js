@@ -1,7 +1,7 @@
 import express from 'express'
 import ExpressJwt from 'express-jwt'
 import * as handlers from '../handlers/user.handlers'
-
+import {checkToken} from '../middleware/middleware'
 const router = express.Router()
 
 
@@ -25,6 +25,6 @@ router.post('/signup', handlers.userSignUpHandler)
 
 router.delete('/:id', handlers.userDeleteHandler)
 
-router.put('/:id', handlers.userUpdateHandler)
-
+router.put('/:id',  handlers.userUpdateHandler)
+router.get('/getrecords' ,checkToken,  handlers.getAllRecords)
 export default router
