@@ -3,9 +3,14 @@ import bcrypt from 'bcrypt'
 import JWT from 'jsonwebtoken'
 import User from '../database/models/user.model'
 import UploadTableService from "../database/services/uploadTable.service";
+import TranscriptionModelService from "../database/services/transcription.service";
 import TextService from "../database/services/text.service";
+import UploadTable from "../database/models/uploadTable.model";
+import Text from "../database/models/text.model";
+import TranscriptionModel from "../database/models/transcription.model";
 const uploadService = new UploadTableService()
 const textModelService = new TextService()
+const transcriptService = new TranscriptionModelService()
 export const userSignInHandler = async (req, res) => {
     try {
        let body = req.body
@@ -41,8 +46,29 @@ export const userSignUpHandler = async (req, res) => {
         let body = req.body
         body.password = await bcrypt.hashSync(body.password, 10)
         body.token = await JWT.sign({role: body.role, email: body.email}, process.env.SECRET_KEY)
-        
         let user = await UserService.register(body)
+        if (body.upload_id)
+        {
+            let uploadObj = new UploadTable.findById(body.upload_id)
+            if (uploadObj._id !== undefined)
+            {
+                uploadObj.user_id = user._id;
+                await  uploadService.updateTable(uploadObj._id, uploadObj)
+                let transcriptions = TranscriptionModel.find({upload_id: uploadObj._id})
+                if (transcriptions)
+                {
+                    transcriptions.user_id = uploadObj.user_id
+                    await  transcriptService.updateTranscriptionTable(transcriptions._id, transcriptions)
+                }
+            }
+            let textObj = new Text.findById(body.upload_id)
+            if (textObj)
+            {
+                textObj.user_id = user.id
+               await  textModelService.updateText(textObj._id, textObj)
+            }
+
+        }
         return res.status(200).json({user : user})
     } catch(err) {
         if(err.name == 'MongoError') {

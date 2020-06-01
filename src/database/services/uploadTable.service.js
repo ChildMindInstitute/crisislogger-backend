@@ -6,8 +6,7 @@ class UploadTableService {
         return obj.save()
     }
     async updateTable(id, data) {
-        const status = await UploadTable.updateOne({_id: id}, data, {upsert: true});
-        console.log(status)
+        await UploadTable.updateOne({_id: id}, data, {upsert: true});
     }
     getUserUploads(user_id){
         return UploadTable.find({user_id: user_id})
