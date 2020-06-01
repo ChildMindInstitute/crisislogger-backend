@@ -49,7 +49,7 @@ export const userSignUpHandler = async (req, res) => {
         let user = await UserService.register(body)
         if (body.upload_id)
         {
-            let uploadObj = new UploadTable.findById(body.upload_id)
+            let uploadObj = UploadTable.findById(body.upload_id)
             if (uploadObj._id !== undefined)
             {
                 uploadObj.user_id = user._id;
@@ -61,7 +61,7 @@ export const userSignUpHandler = async (req, res) => {
                     await  transcriptService.updateTranscriptionTable(transcriptions._id, transcriptions)
                 }
             }
-            let textObj = new Text.findById(body.upload_id)
+            let textObj =  Text.findById(body.upload_id)
             if (textObj)
             {
                 textObj.user_id = user.id
