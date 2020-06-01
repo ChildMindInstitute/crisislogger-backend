@@ -31,7 +31,7 @@ export const uploadFileHandle = async (req, res) => {
     }
     if (req.decoded)
     {
-        user = await UserService.login(req.decoded.userObject);
+        user = await UserService.login(req.decoded.email);
         if (!user)
         {
             return res.status(401).json({message : 'User does not exist'})
@@ -156,7 +156,7 @@ export const uploadTextHandle = async (req, res) => {
         }
         if (req.decoded)
         {
-            user = await UserService.login(req.decoded.userObject);
+            user = await UserService.login(req.decoded.email);
             if (!user)
             {
                 return res.status(401).json({message : 'User does not exist'})

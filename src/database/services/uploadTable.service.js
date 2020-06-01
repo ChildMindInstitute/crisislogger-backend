@@ -13,7 +13,6 @@ class UploadTableService {
     }
     async storeTranscripts(transcript, upload_id) {
         let uploadObj = UploadTable.findById(upload_id)
-        console.log(uploadObj)
         uploadObj.transcripts = transcript
         uploadObj.status ='finished';
        return  await uploadObj.save();

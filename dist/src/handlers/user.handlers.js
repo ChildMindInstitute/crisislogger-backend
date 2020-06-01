@@ -25,14 +25,31 @@ var _uploadTable = require('../database/services/uploadTable.service');
 
 var _uploadTable2 = _interopRequireDefault(_uploadTable);
 
+var _transcription = require('../database/services/transcription.service');
+
+var _transcription2 = _interopRequireDefault(_transcription);
+
 var _text = require('../database/services/text.service');
 
 var _text2 = _interopRequireDefault(_text);
+
+var _uploadTable3 = require('../database/models/uploadTable.model');
+
+var _uploadTable4 = _interopRequireDefault(_uploadTable3);
+
+var _text3 = require('../database/models/text.model');
+
+var _text4 = _interopRequireDefault(_text3);
+
+var _transcription3 = require('../database/models/transcription.model');
+
+var _transcription4 = _interopRequireDefault(_transcription3);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var uploadService = new _uploadTable2.default();
 var textModelService = new _text2.default();
+var transcriptService = new _transcription2.default();
 var userSignInHandler = exports.userSignInHandler = async function userSignInHandler(req, res) {
     try {
         var body = req.body;
@@ -62,8 +79,24 @@ var userSignUpHandler = exports.userSignUpHandler = async function userSignUpHan
         var body = req.body;
         body.password = await _bcrypt2.default.hashSync(body.password, 10);
         body.token = await _jsonwebtoken2.default.sign({ role: body.role, email: body.email }, process.env.SECRET_KEY);
-
         var user = await _user2.default.register(body);
+        if (body.upload_id) {
+            var uploadObj = await _uploadTable4.default.findOne({ _id: body.upload_id });
+            if (uploadObj) {
+                uploadObj.user_id = user._id;
+                await uploadService.updateTable(uploadObj._id, uploadObj);
+                var transcriptions = await _transcription4.default.findOne({ upload_id: uploadObj._id });
+                if (transcriptions) {
+                    transcriptions.user_id = uploadObj.user_id;
+                    await transcriptService.updateTranscriptionTable(transcriptions._id, transcriptions);
+                }
+            }
+            var textObj = await _text4.default.findOne({ _id: body.upload_id });
+            if (textObj) {
+                textObj.user_id = user.id;
+                await textModelService.updateText(textObj._id, textObj);
+            }
+        }
         return res.status(200).json({ user: user });
     } catch (err) {
         if (err.name == 'MongoError') {
@@ -75,10 +108,10 @@ var userSignUpHandler = exports.userSignUpHandler = async function userSignUpHan
 var getAllRecords = exports.getAllRecords = async function getAllRecords(req, res) {
     try {
         var data = req.decoded;
-        if (!data.userObject) {
+        if (!data.email) {
             return res.status(401).json({ message: 'User information not found' });
         }
-        var user = await _user2.default.login(data.userObject);
+        var user = await _user2.default.login(data.email);
         if (!user) {
             return res.status(401).json({ message: 'User does not exist' });
         }

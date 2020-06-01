@@ -49,19 +49,19 @@ export const userSignUpHandler = async (req, res) => {
         let user = await UserService.register(body)
         if (body.upload_id)
         {
-            let uploadObj = UploadTable.findById(body.upload_id)
-            if (uploadObj._id !== undefined)
+            let uploadObj = await UploadTable.findOne({_id: body.upload_id})
+            if (uploadObj)
             {
                 uploadObj.user_id = user._id;
                 await  uploadService.updateTable(uploadObj._id, uploadObj)
-                let transcriptions = TranscriptionModel.find({upload_id: uploadObj._id})
+                let transcriptions = await TranscriptionModel.findOne({upload_id: uploadObj._id})
                 if (transcriptions)
                 {
                     transcriptions.user_id = uploadObj.user_id
                     await  transcriptService.updateTranscriptionTable(transcriptions._id, transcriptions)
                 }
             }
-            let textObj =  Text.findById(body.upload_id)
+            let textObj =  await Text.findOne({_id: body.upload_id})
             if (textObj)
             {
                 textObj.user_id = user.id
@@ -80,11 +80,11 @@ export const userSignUpHandler = async (req, res) => {
 export const getAllRecords  = async (req, res) => {
     try {
         let data = req.decoded
-        if (!data.userObject)
+        if (!data.email)
         {
             return res.status(401).json({message : 'User information not found'})
         }
-        let user = await UserService.login(data.userObject);
+        let user = await UserService.login(data.email);
         if (!user)
         {
             return res.status(401).json({message : 'User does not exist'})
