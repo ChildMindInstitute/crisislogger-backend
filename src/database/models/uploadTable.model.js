@@ -3,14 +3,15 @@ let Schema = mongoose.Schema
 let Model = mongoose.model
 
 const uploadTableSchema = new Schema({
-    userId: { type: Schema.Types.ObjectId, ref: 'User' },
+    user: { type: Schema.Types.ObjectId, ref: 'User' },
     name: String,
     voice: String,
     share: {
         type: Number,
         enum: [0, 1, 2],
-        default: 0
+        default: 2
     },
+    user_id: String,
     contribute_to_science: Boolean,
     video_id: String,
     create_at: Date,

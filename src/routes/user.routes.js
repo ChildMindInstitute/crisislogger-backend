@@ -27,4 +27,6 @@ router.delete('/:id', handlers.userDeleteHandler)
 
 router.put('/:id',  handlers.userUpdateHandler)
 router.get('/getrecords' ,checkToken,  handlers.getAllRecords)
+router.post('/changeRecordStatus' ,checkToken,  handlers.changeRecordStatus)
+router.post('/removeRecords' ,checkToken,  handlers.removeRecordsHandler)
 export default router

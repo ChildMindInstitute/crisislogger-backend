@@ -4,13 +4,13 @@ import { spawn } from 'child_process'
 import {getPublicURL} from '../api/googleCloudStorage'
 export const GenerateAudioFromVideo = (file, filename) => {
     return new Promise((resolve, rejects) => {
-        const ffmpeg = spawn(ffmpegpath, ['-i', file ,'-codec:v', 'copy','-codec:a', 'libmp3lame' , "./uploads/" + filename + '.mp3'])
+        const ffmpeg = spawn(ffmpegpath, ['-i', file ,'-ac', '1', "./uploads/" + filename + '.wav'])
         ffmpeg.stderr.on('data', data => {
             console.log(`stderr: ${data}`)
         })
         ffmpeg.on('close', (code) => {
             resolve({
-                newName: `${filename}.mp3`
+                newName: `${filename}.wav`
             })
         })
     })

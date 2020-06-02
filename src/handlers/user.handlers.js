@@ -53,6 +53,7 @@ export const userSignUpHandler = async (req, res) => {
             if (uploadObj)
             {
                 uploadObj.user_id = user._id;
+                uploadObj.user = user._id;
                 await  uploadService.updateTable(uploadObj._id, uploadObj)
                 let transcriptions = await TranscriptionModel.findOne({upload_id: uploadObj._id})
                 if (transcriptions)
@@ -64,7 +65,7 @@ export const userSignUpHandler = async (req, res) => {
             let textObj =  await Text.findOne({_id: body.upload_id})
             if (textObj)
             {
-                textObj.user_id = user.id
+                textObj.user_id = user._id
                await  textModelService.updateText(textObj._id, textObj)
             }
 
@@ -100,6 +101,50 @@ export const getAllRecords  = async (req, res) => {
         return res.status(500).json({message: err})
     }
 }
+export const changeRecordStatus  = async (req, res) => {
+    try {
+        let data = req.decoded
+        let body = req.body
+        if (!data.email)
+        {
+            return res.status(401).json({message : 'User information not found'})
+        }
+        let user = await UserService.login(data.email);
+        if (!user)
+        {
+            return res.status(401).json({message : 'User does not exist'})
+        }
+        if (body.type ==='upload')
+        {
+            let uploadObj = await UploadTable.findOne({_id: body.upload_id})
+            if (body.contentType ==='contribute')
+            {
+                uploadObj.contribute_to_science = body.status
+            }
+            else {
+                uploadObj.share = body.status
+            }
+            await  uploadService.updateTable(uploadObj._id, uploadObj)
+        }
+        else {
+            let textObj =  await Text.findOne({_id: body.upload_id})
+            if (body.contentType ==='contribute')
+            {
+                textObj.contribute_to_science = body.status
+            }
+            else {
+                textObj.share = body.status
+            }
+            await  textModelService.updateText(textObj._id, textObj)
+        }
+        return res.status(200).json({result: true})
+    } catch(err) {
+        if(err.name == 'MongoError') {
+            return  res.status(400).json({ message: 'The email address already exist', code: 1 })
+        }
+        return res.status(500).json({message: err})
+    }
+}
 export const userDeleteHandler = async (req, res) => {
     try {
         let id = req.params.id
@@ -107,6 +152,31 @@ export const userDeleteHandler = async (req, res) => {
         return res.status(200).json()
     } catch(err){
         return res.status(500).json()
+    }
+}
+export const removeRecordsHandler = async (req, res) => {
+    try {
+        let data = req.decoded
+        let body = req.body
+        if (!data.email)
+        {
+            return res.status(401).json({message : 'User information not found'})
+        }
+        let user = await UserService.login(data.email);
+        if (!user)
+        {
+            return res.status(401).json({message : 'User does not exist'})
+        }
+        console.log(body.type)
+        if (body.type =='upload') {
+           await UploadTable.findOneAndDelete({_id: body.upload_id})
+        }
+        else {
+           await Text.findOneAndDelete({_id: body.upload_id})
+        }
+        return res.status(200).json({result: true})
+    } catch(err){
+        return res.status(500).json({message: err})
     }
 }
 

@@ -14,7 +14,7 @@ export const googleSpeechTranscription = async (gcsFilePath) => {
         uri: gcsFilePath
     }
     const config = {
-        encoding: 'ENCODING_UNSPECIFIED',
+        encoding: 'LINEAR16',
         sampleRateHertsz: 16000,
         audioChannelCount: 1,
         languageCode: 'en-US',
@@ -29,6 +29,7 @@ export const googleSpeechTranscription = async (gcsFilePath) => {
     const transcription = response.results
         .map(result => result.alternatives[0].transcript)
         .join('\n')
+    console.log(transcription)
     return {
         transcriptText: transcription
     }

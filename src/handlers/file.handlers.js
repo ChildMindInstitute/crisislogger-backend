@@ -12,7 +12,7 @@ import JWT from 'jsonwebtoken'
 const UploadService = new UploadTableService()
 const TranscriptionService = new TranscriptionModelService()
 const TextDBService = new TextService()
-const gcs = "gs://"+process.env["BUCKET_NAME "];
+const gcs = "gs://"+process.env.BUCKET_NAME;
 
 export const uploadFileHandle = async (req, res) => {
 
@@ -50,6 +50,7 @@ export const uploadFileHandle = async (req, res) => {
         if (!fs.existsSync(uploadDir)){
             fs.mkdirSync(uploadDir);
         }
+        console.log(req.body)
         let uploadObj; let audioPath = uploadDir+ filename;
         writeFile(audioPath, file.data, async (err) => {
             try {
@@ -60,21 +61,21 @@ export const uploadFileHandle = async (req, res) => {
                 }
                 uploadObj = await UploadService.createTable({
                     name: filename,
-                    video_generated: file.mimetype.split('/')[0] === 'video' ? 1 : 0,
+                    video_generated: 0,
                     audio_generated: 0,
                     status: 'processing',
                     rank: 0,
                     original_name: filename,
                     hide: req.body.publicly === '2',
                     voice: req.body.voice,
-                    share: req.body.publicly,
+                    share: Number(req.body.publicly),
                     contribute_to_science: req.body.contribute_to_science,
-                    created_at: new Date(),
+                    created_at: Date.now(),
+                    user: (user._id !== undefined? user._id: null),
                     user_id: (user._id !== undefined? user._id: null),
                     converted: file.mimetype === 'audio/mpeg' || file.mimetype === 'audio/vnd.wave' ? 0 : 1,
                 })
             } catch(err) {
-                console.log(err)
                 return   res.status(500).json({message: err})
             }
             if(err)  return  res.status(500).json({message : 'Error with save file'})
@@ -96,9 +97,10 @@ export const uploadFileHandle = async (req, res) => {
                                 original_name: file.name,
                                 hide: req.body.hide,
                                 voice: req.body.publicly,
-                                share: req.body.publicly,
+                                share: Number(req.body.publicly),
                                 contribute_to_science: req.body.contribute_to_science,
-                                created_at: new Date(),
+                                created_at: Date.now(),
+                                user: (user._id !== undefined? user._id: null),
                                 user_id: (user._id !== undefined? user._id: null),
                                 converted: file.mimetype === 'audio/mpeg' || file.mimetype === 'audio/vnd.wave' ? 0 : 1,
                             })
@@ -110,9 +112,9 @@ export const uploadFileHandle = async (req, res) => {
                 }
 
                 try{
-                    let audioFilePath = gcs+ '/'+name+'.'+ (extension !== 'mp3' &&  extension !=='wav'?'mp3': extension);
+                    let audioFilePath = gcs+ '/'+name+'.'+ (extension !== 'mp3' &&  extension !=='wav'?'wav': extension);
                     let transcription = await googleSpeechTranscription(audioFilePath)
-                    let transcriptionObj = TranscriptionService.createTable({
+                    let transcriptionObj = await TranscriptionService.createTable({
                         upload_id: uploadObj !== undefined? uploadObj._id: null,
                         user_id: (user._id !== undefined? user._id: null),
                         text: transcription.transcriptText,
@@ -121,7 +123,6 @@ export const uploadFileHandle = async (req, res) => {
                     await UploadService.storeTranscripts(transcriptionObj, uploadObj._id);
 
                 } catch(err) {
-                    console.log(err)
                     return   res.status(500).json({message: 'Error with transcription'})
                 }
                 if (fs.existsSync(audioPath))
@@ -164,7 +165,7 @@ export const uploadTextHandle = async (req, res) => {
         }
         const text = await TextDBService.createTable({
             text: req.body.text,
-            share: req.body.share,
+            share: Number(req.body.publicly),
             voice: req.body.voice,
             contribute_to_science: req.body.contribute_to_science,
             rank: req.body.rank,

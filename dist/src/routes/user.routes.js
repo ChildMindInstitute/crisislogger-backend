@@ -46,4 +46,6 @@ router.delete('/:id', handlers.userDeleteHandler);
 
 router.put('/:id', handlers.userUpdateHandler);
 router.get('/getrecords', _middleware.checkToken, handlers.getAllRecords);
+router.post('/changeRecordStatus', _middleware.checkToken, handlers.changeRecordStatus);
+router.post('/removeRecords', _middleware.checkToken, handlers.removeRecordsHandler);
 exports.default = router;

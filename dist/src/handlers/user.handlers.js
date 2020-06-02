@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.userUpdateHandler = exports.userDeleteHandler = exports.getAllRecords = exports.userSignUpHandler = exports.userSignInHandler = undefined;
+exports.userUpdateHandler = exports.removeRecordsHandler = exports.userDeleteHandler = exports.changeRecordStatus = exports.getAllRecords = exports.userSignUpHandler = exports.userSignInHandler = undefined;
 
 var _user = require('../database/services/user.service');
 
@@ -84,6 +84,7 @@ var userSignUpHandler = exports.userSignUpHandler = async function userSignUpHan
             var uploadObj = await _uploadTable4.default.findOne({ _id: body.upload_id });
             if (uploadObj) {
                 uploadObj.user_id = user._id;
+                uploadObj.user = user._id;
                 await uploadService.updateTable(uploadObj._id, uploadObj);
                 var transcriptions = await _transcription4.default.findOne({ upload_id: uploadObj._id });
                 if (transcriptions) {
@@ -93,7 +94,7 @@ var userSignUpHandler = exports.userSignUpHandler = async function userSignUpHan
             }
             var textObj = await _text4.default.findOne({ _id: body.upload_id });
             if (textObj) {
-                textObj.user_id = user.id;
+                textObj.user_id = user._id;
                 await textModelService.updateText(textObj._id, textObj);
             }
         }
@@ -126,6 +127,42 @@ var getAllRecords = exports.getAllRecords = async function getAllRecords(req, re
         return res.status(500).json({ message: err });
     }
 };
+var changeRecordStatus = exports.changeRecordStatus = async function changeRecordStatus(req, res) {
+    try {
+        var data = req.decoded;
+        var body = req.body;
+        if (!data.email) {
+            return res.status(401).json({ message: 'User information not found' });
+        }
+        var user = await _user2.default.login(data.email);
+        if (!user) {
+            return res.status(401).json({ message: 'User does not exist' });
+        }
+        if (body.type === 'upload') {
+            var uploadObj = await _uploadTable4.default.findOne({ _id: body.upload_id });
+            if (body.contentType === 'contribute') {
+                uploadObj.contribute_to_science = body.status;
+            } else {
+                uploadObj.share = body.status;
+            }
+            await uploadService.updateTable(uploadObj._id, uploadObj);
+        } else {
+            var textObj = await _text4.default.findOne({ _id: body.upload_id });
+            if (body.contentType === 'contribute') {
+                textObj.contribute_to_science = body.status;
+            } else {
+                textObj.share = body.status;
+            }
+            await textModelService.updateText(textObj._id, textObj);
+        }
+        return res.status(200).json({ result: true });
+    } catch (err) {
+        if (err.name == 'MongoError') {
+            return res.status(400).json({ message: 'The email address already exist', code: 1 });
+        }
+        return res.status(500).json({ message: err });
+    }
+};
 var userDeleteHandler = exports.userDeleteHandler = async function userDeleteHandler(req, res) {
     try {
         var id = req.params.id;
@@ -133,6 +170,28 @@ var userDeleteHandler = exports.userDeleteHandler = async function userDeleteHan
         return res.status(200).json();
     } catch (err) {
         return res.status(500).json();
+    }
+};
+var removeRecordsHandler = exports.removeRecordsHandler = async function removeRecordsHandler(req, res) {
+    try {
+        var data = req.decoded;
+        var body = req.body;
+        if (!data.email) {
+            return res.status(401).json({ message: 'User information not found' });
+        }
+        var user = await _user2.default.login(data.email);
+        if (!user) {
+            return res.status(401).json({ message: 'User does not exist' });
+        }
+        console.log(body.type);
+        if (body.type == 'upload') {
+            await _uploadTable4.default.findOneAndDelete({ _id: body.upload_id });
+        } else {
+            await _text4.default.findOneAndDelete({ _id: body.upload_id });
+        }
+        return res.status(200).json({ result: true });
+    } catch (err) {
+        return res.status(500).json({ message: err });
     }
 };
 
