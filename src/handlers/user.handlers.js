@@ -21,12 +21,11 @@ export const userSignInHandler = async (req, res) => {
         }
        let isAuth = bcrypt.compareSync(body.password, userObject.password)
        let token = await JWT.sign(
-           { role: userObject.role, userObject: body.email },
+           { role: userObject.role, email: body.email },
            process.env.SECRET_KEY
        )
         await UserService.updateToken(token)
         userObject.token = token;
-        console.log(isAuth)
         if (isAuth)
         {
             return res.status(200).json({user: userObject})
@@ -35,7 +34,6 @@ export const userSignInHandler = async (req, res) => {
             return res.status(401).json({message: 'Auth wrong'})
         }
     } catch(err) {
-        console.log(err)
         return res.status(500).json({message: err})
     }
 }
