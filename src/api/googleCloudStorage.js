@@ -4,24 +4,28 @@ import fs from 'fs'
 
 const bucketName = process.env.BUCKET_NAME
 export const storage = new Storage();
+
 async function createBucket() {
-    await storage.createBucket(bucketName);
-    console.log(`Bucket ${bucketName} created.`)
+    try {
+        await storage.createBucket(bucketName);
+        console.log(`Bucket ${bucketName} created.`)
+    } catch(err) {
+        console.log('Create bucket ' + err)
+    }
 }
 
 export  const uploadFile = async (fileName, uploadFile,  mimeType)  => {
-    await storage.bucket(bucketName).makePublic();
-    const status = await  storage.bucket(bucketName).upload(uploadFile);
-    if (status.id !== undefined)
-    {
-        return {success: false}
-    }
-    else {
-        return {success: true}
+    try {
+        await storage.bucket(bucketName).makePublic();
+        await  storage.bucket(bucketName).upload(uploadFile);
+        return { success: true }
+    } catch (err) {
+        console.log('Upload File Error ' + err)
+        return { success: false }
     }
 }
 export const getPublicURL = () =>
 {
     return `https://storage.googleapis.com/${bucketName}/`;
 }
-// createBucket().catch(console.error)
+//createBucket().catch(console.error)

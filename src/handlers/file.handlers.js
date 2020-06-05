@@ -50,11 +50,11 @@ export const uploadFileHandle = async (req, res) => {
         if (!fs.existsSync(uploadDir)){
             fs.mkdirSync(uploadDir);
         }
-        console.log(req.body)
         let uploadObj; let audioPath = uploadDir+ filename;
         writeFile(audioPath, file.data, async (err) => {
             try {
                 const result = await uploadFile(filename, audioPath,  file.mimetype)
+                console.log(result)
                 if (!result.success)
                 {
                     return  res.status(500).json({message : 'File upload failed, please try again later'})
@@ -71,11 +71,12 @@ export const uploadFileHandle = async (req, res) => {
                     share: Number(req.body.publicly),
                     contribute_to_science: req.body.contribute_to_science,
                     created_at: Date.now(),
-                    user: (user._id !== undefined? user._id: null),
-                    user_id: (user._id !== undefined? user._id: null),
-                    converted: file.mimetype === 'audio/mpeg' || file.mimetype === 'audio/vnd.wave' ? 0 : 1,
+                    user: (user? user._id: null),
+                    user_id: (user? user._id: null),
+                    converted: 0
                 })
             } catch(err) {
+                console.log(err)
                 return   res.status(500).json({message: err})
             }
             if(err)  return  res.status(500).json({message : 'Error with save file'})
@@ -100,9 +101,9 @@ export const uploadFileHandle = async (req, res) => {
                                 share: Number(req.body.publicly),
                                 contribute_to_science: req.body.contribute_to_science,
                                 created_at: Date.now(),
-                                user: (user._id !== undefined? user._id: null),
-                                user_id: (user._id !== undefined? user._id: null),
-                                converted: file.mimetype === 'audio/mpeg' || file.mimetype === 'audio/vnd.wave' ? 0 : 1,
+                                user: (user? user._id: null),
+                                user_id: (user? user._id: null),
+                                converted: 1,
                             })
                         }
                     } catch(err) {
@@ -116,13 +117,14 @@ export const uploadFileHandle = async (req, res) => {
                     let transcription = await googleSpeechTranscription(audioFilePath)
                     let transcriptionObj = await TranscriptionService.createTable({
                         upload_id: uploadObj !== undefined? uploadObj._id: null,
-                        user_id: (user._id !== undefined? user._id: null),
+                        user_id: (user? user._id: null),
                         text: transcription.transcriptText,
                         created_at: Date.now()
                     })
                     await UploadService.storeTranscripts(transcriptionObj, uploadObj._id);
 
                 } catch(err) {
+                    console.log(err)
                     return   res.status(500).json({message: 'Error with transcription'})
                 }
                 if (fs.existsSync(audioPath))

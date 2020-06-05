@@ -4,6 +4,7 @@ import JWT from 'jsonwebtoken'
 import User from '../database/models/user.model'
 import UploadTableService from "../database/services/uploadTable.service";
 import TranscriptionModelService from "../database/services/transcription.service";
+import QuestionnaireService from '../database/services/questionnary.service';
 import TextService from "../database/services/text.service";
 import UploadTable from "../database/models/uploadTable.model";
 import Text from "../database/models/text.model";
@@ -11,10 +12,12 @@ import TranscriptionModel from "../database/models/transcription.model";
 const uploadService = new UploadTableService()
 const textModelService = new TextService()
 const transcriptService = new TranscriptionModelService()
+const questionnaryService = new QuestionnaireService()
+
 export const userSignInHandler = async (req, res) => {
     try {
-       let body = req.body
-       let userObject = await UserService.login(body.email)
+        let body = req.body
+        let userObject = await UserService.login(body.email)
         if (userObject === null)
         {
             return res.status(401).json({message : "User doesn't exist"});
@@ -31,7 +34,7 @@ export const userSignInHandler = async (req, res) => {
             return res.status(200).json({user: userObject})
         }
         else {
-            return res.status(401).json({message: 'Auth wrong'})
+            return res.status(401).json({message: 'Unauthorized'})
         }
     } catch(err) {
         return res.status(500).json({message: err})
@@ -78,12 +81,14 @@ export const userSignUpHandler = async (req, res) => {
 }
 export const getAllRecords  = async (req, res) => {
     try {
-        let data = req.decoded
-        if (!data.email)
-        {
+        let user;
+        console.log(req.user )
+        if (req.user && req.user.email) {
+            user = await UserService.login(req.user.email)
+        }
+        else {
             return res.status(401).json({message : 'User information not found'})
         }
-        let user = await UserService.login(data.email);
         if (!user)
         {
             return res.status(401).json({message : 'User does not exist'})
@@ -101,13 +106,15 @@ export const getAllRecords  = async (req, res) => {
 }
 export const changeRecordStatus  = async (req, res) => {
     try {
-        let data = req.decoded
+        let user;
         let body = req.body
-        if (!data.email)
+        if (req.user || req.user.email)
         {
             return res.status(401).json({message : 'User information not found'})
         }
-        let user = await UserService.login(data.email);
+        if (req.user && req.user.email) {
+            user = await UserService.login(req.user.email)
+        }
         if (!user)
         {
             return res.status(401).json({message : 'User does not exist'})
@@ -138,7 +145,7 @@ export const changeRecordStatus  = async (req, res) => {
         return res.status(200).json({result: true})
     } catch(err) {
         if(err.name == 'MongoError') {
-            return  res.status(400).json({ message: 'The email address already exist', code: 1 })
+            return  res.status(400).json({ message: err, code: 1 })
         }
         return res.status(500).json({message: err})
     }
@@ -154,18 +161,16 @@ export const userDeleteHandler = async (req, res) => {
 }
 export const removeRecordsHandler = async (req, res) => {
     try {
-        let data = req.decoded
         let body = req.body
-        if (!data.email)
+        if (!req.user || !req.user.email)
         {
             return res.status(401).json({message : 'User information not found'})
         }
-        let user = await UserService.login(data.email);
+        let user = await UserService.login(req.user.email);
         if (!user)
         {
             return res.status(401).json({message : 'User does not exist'})
         }
-        console.log(body.type)
         if (body.type =='upload') {
            await UploadTable.findOneAndDelete({_id: body.upload_id})
         }
@@ -189,3 +194,21 @@ export const userUpdateHandler = async (req, res) => {
     }
 }
 
+
+export const saveUserQuestionnary = async (req, res) => {
+    try {
+        if (req.user && req.user.email)
+        {
+            const user = await UserService.getUserIdByEmail(req.user.email)
+            const userId = user._id
+            await questionnaryService.createDBObject(userId, req.body.questionnaryData)
+        }
+        else {
+            return res.status(401).json({message : 'Unauthorized'})
+        }
+        return res.status(200).json({message: 'Successfully updated'})
+    } catch(err) {
+        console.log(err)
+        return res.status(200).json({message: err})
+    }
+}
