@@ -166,7 +166,7 @@ var changeRecordStatus = exports.changeRecordStatus = async function changeRecor
         return res.status(200).json({ result: true });
     } catch (err) {
         if (err.name == 'MongoError') {
-            return res.status(400).json({ message: 'The email address already exist', code: 1 });
+            return res.status(400).json({ message: err, code: 1 });
         }
         return res.status(500).json({ message: err });
     }

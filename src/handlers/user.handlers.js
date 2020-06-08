@@ -34,7 +34,7 @@ export const userSignInHandler = async (req, res) => {
             return res.status(200).json({user: userObject})
         }
         else {
-            return res.status(401).json({message: 'Unauthorized'})
+            return res.status(401).json({message: 'Email or password is invalid'})
         }
     } catch(err) {
         return res.status(500).json({message: err})
