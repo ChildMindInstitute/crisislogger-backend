@@ -26,6 +26,9 @@ var UserService = {
     },
     updateToken: function updateToken(userId, token) {
         _user2.default.findOneAndUpdate({ _id: userId }, { token: token });
+    },
+    getUserIdByEmail: function getUserIdByEmail(email) {
+        return _user2.default.findOne({ email: email });
     }
 };
 

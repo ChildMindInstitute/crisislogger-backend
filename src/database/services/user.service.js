@@ -16,6 +16,9 @@ const UserService = {
     },
     updateToken(userId, token) {
         User.findOneAndUpdate({ _id: userId }, { token })
+    },
+    getUserIdByEmail(email) {
+        return User.findOne({ email })
     }
 }
 

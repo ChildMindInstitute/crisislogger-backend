@@ -43,8 +43,9 @@ router.post('/signin', handlers.userSignInHandler);
 router.post('/signup', handlers.userSignUpHandler);
 
 router.delete('/:id', handlers.userDeleteHandler);
-
-router.put('/:id', handlers.userUpdateHandler);
+router.put('/change-password', _middleware.checkToken, handlers.changePassword);
+router.put('/update-profile', _middleware.checkToken, handlers.userUpdateHandler);
+router.get('/me', _middleware.checkToken, handlers.getAccount);
 router.get('/getrecords', _middleware.checkToken, handlers.getAllRecords);
 router.post('/changeRecordStatus', _middleware.checkToken, handlers.changeRecordStatus);
 router.post('/removeRecords', _middleware.checkToken, handlers.removeRecordsHandler);

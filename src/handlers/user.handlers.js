@@ -82,7 +82,6 @@ export const userSignUpHandler = async (req, res) => {
 export const getAllRecords  = async (req, res) => {
     try {
         let user;
-        console.log(req.user )
         if (req.user && req.user.email) {
             user = await UserService.login(req.user.email)
         }
@@ -171,7 +170,7 @@ export const removeRecordsHandler = async (req, res) => {
         {
             return res.status(401).json({message : 'User does not exist'})
         }
-        if (body.type =='upload') {
+        if (body.type === 'upload') {
            await UploadTable.findOneAndDelete({_id: body.upload_id})
         }
         else {
@@ -185,16 +184,73 @@ export const removeRecordsHandler = async (req, res) => {
 
 export const userUpdateHandler = async (req, res) => {
     try {
-        let id = req.params.id
-        let userObject = req.body
-        await UserService.update(id, userObject)
-        return  res.status(200).json({success: true})
+        if (req.user && req.user.email)
+        {
+            let user = await UserService.getUserIdByEmail(req.user.email)
+            let token = await JWT.sign(
+                { role: user.role, email: user.email },
+                process.env.SECRET_KEY
+            )
+            user.email  = req.body.email
+            user.name  = req.body.name
+            user.token  = token
+            await UserService.update(user._id, user)
+            return  res.status(200).json({result: user})
+        }
+        else {
+            return res.status(401).json({message : 'Unauthorized'})
+        }
     }catch(err) {
+        console.log(err)
         return res.status(500).json({success: false})
     }
 }
 
+export const getAccount = async (req, res) => {
+    try {
+        if (req.user && req.user.email)
+        {
+            let user = await UserService.getUserIdByEmail(req.user.email)
+            return  res.status(200).json({result : user})
+        }
+        else {
+            return res.status(401).json({message : 'Unauthorized'})
+        }
 
+    } catch(err) {
+        console.log(err)
+        return res.status(200).json({message: err})
+    }
+}
+export  const changePassword = async (req, res) => {
+    try {
+        if (req.user && req.user.email)
+        {
+            let body = req.body;
+            console.log(body)
+            let user = await UserService.getUserIdByEmail(req.user.email)
+            let isAuth = bcrypt.compareSync(body.old_password, user.password)
+            if(isAuth) {
+                body.new_password = await bcrypt.hashSync(body.new_password, 10)
+                body.token = await JWT.sign({role: user.role, email: user.email}, process.env.SECRET_KEY)
+                user.token = body.token;
+                user.password = body.new_password;
+                await UserService.update(user._id, user)
+                return res.status(200).json({result: user})
+            }
+            else {
+                return res.status(200).json({message: 'Old password is invalid'})
+            }
+        }
+        else {
+            return res.status(401).json({message : 'Unauthorized'})
+        }
+
+    } catch(err) {
+        console.log(err)
+        return res.status(200).json({message: err})
+    }
+}
 export const saveUserQuestionnary = async (req, res) => {
     try {
         if (req.user && req.user.email)

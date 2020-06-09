@@ -24,8 +24,9 @@ router.post('/signin', handlers.userSignInHandler)
 router.post('/signup', handlers.userSignUpHandler)
 
 router.delete('/:id', handlers.userDeleteHandler)
-
-router.put('/:id',  handlers.userUpdateHandler)
+router.put('/change-password', checkToken, handlers.changePassword)
+router.put('/update-profile', checkToken, handlers.userUpdateHandler)
+router.get('/me', checkToken, handlers.getAccount)
 router.get('/getrecords' ,checkToken,  handlers.getAllRecords)
 router.post('/changeRecordStatus' ,checkToken,  handlers.changeRecordStatus)
 router.post('/removeRecords' ,checkToken,  handlers.removeRecordsHandler)

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.saveUserQuestionnary = exports.userUpdateHandler = exports.removeRecordsHandler = exports.userDeleteHandler = exports.changeRecordStatus = exports.getAllRecords = exports.userSignUpHandler = exports.userSignInHandler = undefined;
+exports.saveUserQuestionnary = exports.changePassword = exports.getAccount = exports.userUpdateHandler = exports.removeRecordsHandler = exports.userDeleteHandler = exports.changeRecordStatus = exports.getAllRecords = exports.userSignUpHandler = exports.userSignInHandler = undefined;
 
 var _user = require('../database/services/user.service');
 
@@ -70,7 +70,7 @@ var userSignInHandler = exports.userSignInHandler = async function userSignInHan
         if (isAuth) {
             return res.status(200).json({ user: userObject });
         } else {
-            return res.status(401).json({ message: 'Unauthorized' });
+            return res.status(401).json({ message: 'Email or password is invalid' });
         }
     } catch (err) {
         return res.status(500).json({ message: err });
@@ -113,7 +113,6 @@ var userSignUpHandler = exports.userSignUpHandler = async function userSignUpHan
 var getAllRecords = exports.getAllRecords = async function getAllRecords(req, res) {
     try {
         var user = void 0;
-        console.log(req.user);
         if (req.user && req.user.email) {
             user = await _user2.default.login(req.user.email);
         } else {
@@ -190,7 +189,7 @@ var removeRecordsHandler = exports.removeRecordsHandler = async function removeR
         if (!user) {
             return res.status(401).json({ message: 'User does not exist' });
         }
-        if (body.type == 'upload') {
+        if (body.type === 'upload') {
             await _uploadTable4.default.findOneAndDelete({ _id: body.upload_id });
         } else {
             await _text4.default.findOneAndDelete({ _id: body.upload_id });
@@ -203,15 +202,61 @@ var removeRecordsHandler = exports.removeRecordsHandler = async function removeR
 
 var userUpdateHandler = exports.userUpdateHandler = async function userUpdateHandler(req, res) {
     try {
-        var id = req.params.id;
-        var userObject = req.body;
-        await _user2.default.update(id, userObject);
-        return res.status(200).json({ success: true });
+        if (req.user && req.user.email) {
+            var user = await _user2.default.getUserIdByEmail(req.user.email);
+            var token = await _jsonwebtoken2.default.sign({ role: user.role, email: user.email }, process.env.SECRET_KEY);
+            user.email = req.body.email;
+            user.name = req.body.name;
+            user.token = token;
+            await _user2.default.update(user._id, user);
+            return res.status(200).json({ result: user });
+        } else {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
     } catch (err) {
+        console.log(err);
         return res.status(500).json({ success: false });
     }
 };
 
+var getAccount = exports.getAccount = async function getAccount(req, res) {
+    try {
+        if (req.user && req.user.email) {
+            var user = await _user2.default.getUserIdByEmail(req.user.email);
+            return res.status(200).json({ result: user });
+        } else {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+    } catch (err) {
+        console.log(err);
+        return res.status(200).json({ message: err });
+    }
+};
+var changePassword = exports.changePassword = async function changePassword(req, res) {
+    try {
+        if (req.user && req.user.email) {
+            var body = req.body;
+            console.log(body);
+            var user = await _user2.default.getUserIdByEmail(req.user.email);
+            var isAuth = _bcrypt2.default.compareSync(body.old_password, user.password);
+            if (isAuth) {
+                body.new_password = await _bcrypt2.default.hashSync(body.new_password, 10);
+                body.token = await _jsonwebtoken2.default.sign({ role: user.role, email: user.email }, process.env.SECRET_KEY);
+                user.token = body.token;
+                user.password = body.new_password;
+                await _user2.default.update(user._id, user);
+                return res.status(200).json({ result: user });
+            } else {
+                return res.status(200).json({ message: 'Old password is invalid' });
+            }
+        } else {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+    } catch (err) {
+        console.log(err);
+        return res.status(200).json({ message: err });
+    }
+};
 var saveUserQuestionnary = exports.saveUserQuestionnary = async function saveUserQuestionnary(req, res) {
     try {
         if (req.user && req.user.email) {
