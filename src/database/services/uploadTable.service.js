@@ -1,5 +1,4 @@
 import UploadTable from '../models/uploadTable.model'
-import Text from "../models/text.model";
 
 class UploadTableService {
     createTable(createObj) {
@@ -7,18 +6,14 @@ class UploadTableService {
         return obj.save()
     }
     async updateTable(id, data) {
-        await UploadTable.updateOne({_id: id}, data, {upsert: true});
+        const status = await UploadTable.updateOne({_id: id}, data, {upsert: true});
+        console.log(status)
     }
-    async getUserUploads(user_id){
-        return UploadTable.find({user_id : user_id , video_generated: false})
-            .populate('transcripts')
+    getUserUploads(user_id){
+        return UploadTable.find({user_id: user_id})
     }
     async storeTranscripts(transcript, upload_id) {
-        let uploadObj = await UploadTable.findById(upload_id)
-        uploadObj.transcripts = transcript
-        uploadObj.status ='finished';
-        uploadObj.audio_generated = 1;
-       return  await UploadTable.updateOne({_id: upload_id}, uploadObj, {upsert: true});
+       return UploadTable.findOneAndUpdate({ _id: upload_id }, { transcripts: transcript, status: 'finished' })
     }
 }
 export default UploadTableService

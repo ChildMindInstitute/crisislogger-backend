@@ -30,6 +30,14 @@ var _file = require('./src/routes/file.routes');
 
 var _file2 = _interopRequireDefault(_file);
 
+var _conversion = require('./src/routes/conversion.routes');
+
+var _conversion2 = _interopRequireDefault(_conversion);
+
+var _conversionQuery = require('./src/middleware/conversionQuery.middleware');
+
+var _conversionQuery2 = _interopRequireDefault(_conversionQuery);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var app = (0, _express2.default)();
@@ -41,10 +49,15 @@ app.use((0, _expressFileupload2.default)({
 app.use((0, _cors2.default)());
 
 app.use(_bodyParser2.default.urlencoded({ extended: false }));
-app.use(_bodyParser2.default.json());
+app.use(_bodyParser2.default.json({ limit: '50mb', extended: false }));
+app.use(function (req, res, next) {
+    req.asyncQuery = _conversionQuery2.default;
+    next();
+});
 
 app.use('/users', _user2.default);
 app.use('/file', _file2.default);
+app.use('/conversion', _conversion2.default);
 
 app.listen(process.env.SERVER_PORT, function () {
     console.log('Server strart on port ' + process.env.SERVER_PORT);

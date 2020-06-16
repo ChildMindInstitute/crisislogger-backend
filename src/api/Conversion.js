@@ -19,3 +19,16 @@ export const audioConvertFormat = (file) => {
         })
     })
 }
+export const convertVideoMp4 = (file, filename) => {
+    return new Promise((resolve, rejects) => {
+        const ffmpeg = spawn(ffmpegpath, ['-i', file ,'-ac', '1', "./uploads/" + filename + '.mp4'])
+        ffmpeg.stderr.on('data', data => {
+            console.log(`stderr: ${data}`)
+        })
+        ffmpeg.on('close', (code) => {
+            resolve({
+                newName: `${filename}.mp4`
+            })
+        })
+    })
+}

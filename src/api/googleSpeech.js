@@ -14,7 +14,7 @@ export const googleSpeechTranscription = async (gcsFilePath) => {
         uri: gcsFilePath
     }
     const config = {
-        encoding: 'LINEAR16',
+        encoding: 'ENCODING_UNSPECIFIED',
         sampleRateHertsz: 16000,
         audioChannelCount: 1,
         languageCode: 'en-US',
@@ -24,13 +24,23 @@ export const googleSpeechTranscription = async (gcsFilePath) => {
         audio: audio,
         config: config
     }
-    const [operation] = await client.longRunningRecognize(request)
-    const [response] = await operation.promise()
-    const transcription = response.results
+
+    try {
+        const [operation] = await client.longRunningRecognize(request)
+        const [response] = await operation.promise()
+        const transcription = response.results
         .map(result => result.alternatives[0].transcript)
         .join('\n')
-    console.log(transcription)
-    return {
-        transcriptText: transcription
+        return {
+            transcriptText: transcription
+        }
+    } catch(err){
+        console.log('Long running recognize ' + err)
+        return {
+            transcriptText: '',
+            error: 'failRecognize'
+        }
     }
+
+   
 }

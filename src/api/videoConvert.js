@@ -1,7 +1,6 @@
 import ffmpegpath from 'ffmpeg-static'
 import path from 'path'
 import { spawn } from 'child_process'
-import {getPublicURL} from '../api/googleCloudStorage'
 export const GenerateAudioFromVideo = (file, filename) => {
     return new Promise((resolve, rejects) => {
         const ffmpeg = spawn(ffmpegpath, ['-i', file ,'-ac', '1', "./uploads/" + filename + '.wav'])

@@ -63,7 +63,7 @@ export const uploadFileHandle = async (req, res) => {
                     name: filename,
                     video_generated: 0,
                     audio_generated: 0,
-                    status: 'processing',
+                    status: 'processing',// for now, it will be processing status.
                     rank: 0,
                     original_name: filename,
                     hide: req.body.publicly === '2',
@@ -140,7 +140,29 @@ export const uploadFileHandle = async (req, res) => {
         })
     }
 }
-
+export const conversionFinishedHandle = async (req, res) => {
+    try {
+        const body = req.body;
+        if (!body.resource_Identifier)
+        {
+            return res.json({message : 'Indentifier not found'})
+        }
+        const text = await TextDBService.createTable({
+            text: req.body.text,
+            share: Number(req.body.publicly),
+            voice: req.body.voice,
+            contribute_to_science: req.body.contribute_to_science,
+            rank: req.body.rank,
+            hide:  req.body.publicly === '2',
+            created_at: Date.now(),
+            user_id: (user._id !== undefined? user._id: null)
+        })
+        return  res.json({ upload_id: text._id })
+    } catch(err) {
+        console.log(err)
+        return  res.status(500).json({message: err})
+    }
+}
 
 export const uploadTextHandle = async (req, res) => {
     try {

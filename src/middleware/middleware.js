@@ -25,6 +25,7 @@ const  checkToken = (req, res, next) => {
         });
     }
 };
+
 export {
     checkToken
 }
