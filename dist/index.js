@@ -49,15 +49,11 @@ app.use((0, _expressFileupload2.default)({
 app.use((0, _cors2.default)());
 
 app.use(_bodyParser2.default.urlencoded({ extended: false }));
-app.use(_bodyParser2.default.json({ limit: '50mb', extended: false }));
-app.use(function (req, res, next) {
-    req.asyncQuery = _conversionQuery2.default;
-    next();
-});
+app.use(_bodyParser2.default.json({ limit: '500mb', extended: false }));
 
 app.use('/users', _user2.default);
 app.use('/file', _file2.default);
-app.use('/conversion', _conversion2.default);
+app.use('/conversion', _conversionQuery2.default, _conversion2.default);
 
 app.listen(process.env.SERVER_PORT, function () {
     console.log('Server strart on port ' + process.env.SERVER_PORT);

@@ -13,8 +13,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var option = {
     socketTimeoutMS: 30000,
     keepAlive: true,
-    reconnectTries: 30000,
     useNewUrlParser: true,
+    useFindAndModify: true,
     useUnifiedTopology: true
 };
 _mongoose2.default.connect(process.env.DATABASE_URL, option);

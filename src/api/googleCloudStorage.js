@@ -20,7 +20,7 @@ export  const uploadFile = async (fileName, uploadFile,  mimeType)  => {
         await  storage.bucket(bucketName).upload(uploadFile);
         return { success: true }
     } catch (err) {
-        console.log('Upload File Error ' + err)
+        console.log('Upload File ' + err)
         return { success: false }
     }
 }

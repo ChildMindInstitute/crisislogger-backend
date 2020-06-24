@@ -1,21 +1,21 @@
 import queue from 'async/queue';
 import axios from 'axios';
 
-export default queue( async (task, callback) => {
-  const result = await task();
-  // Quick solution for demonstration
-  axios({
-      method: 'post',
-      url: result.webhook_url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      data: result,
+export default (req, res, next) => {
+  req.asyncQuery = queue( async (task, callback) => {
+    const result = await task();
+
+    axios.post(result.webhook_url, result, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': req.headers['authorization']
+        }
     })
     .then((response) => {
-      console.log('RES', response)
-    })
-    .catch((error) => {
-      console.log('ERROR', error)
+      console.log(response.data);
+    }, (error) => {
+      console.log(error);
     });
-}, 1);
+  });
+  next();
+}

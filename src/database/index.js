@@ -2,8 +2,8 @@ import mongoose from 'mongoose'
 const option = {
     socketTimeoutMS: 30000,
     keepAlive: true,
-    reconnectTries: 30000,
     useNewUrlParser: true,
+    useFindAndModify:true,
     useUnifiedTopology: true
 };
 mongoose.connect(process.env.DATABASE_URL, option)

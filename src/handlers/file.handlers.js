@@ -1,4 +1,3 @@
-import { audioConvertFormat } from '../api/audioConver'
 import { uploadFile, getPublicURL } from '../api/googleCloudStorage'
 import { googleSpeechTranscription } from '../api/googleSpeech'
 import { GenerateAudioFromVideo } from '../api/videoConvert'
@@ -9,11 +8,11 @@ import UserService from "../database/services/user.service";
 import fs, { writeFile } from 'fs'
 import { v1} from 'uuid'
 import JWT from 'jsonwebtoken'
+import axios from "axios";
 const UploadService = new UploadTableService()
 const TranscriptionService = new TranscriptionModelService()
 const TextDBService = new TextService()
-const gcs = "gs://"+process.env.BUCKET_NAME;
-
+import {gcs} from '../../config'
 export const uploadFileHandle = async (req, res) => {
 
     let token = req.headers['x-access-token'] || req.headers['authorization']; // Express headers are auto converted to lowercase
@@ -54,7 +53,6 @@ export const uploadFileHandle = async (req, res) => {
         writeFile(audioPath, file.data, async (err) => {
             try {
                 const result = await uploadFile(filename, audioPath,  file.mimetype)
-                console.log(result)
                 if (!result.success)
                 {
                     return  res.status(500).json({message : 'File upload failed, please try again later'})
@@ -81,38 +79,32 @@ export const uploadFileHandle = async (req, res) => {
             }
             if(err)  return  res.status(500).json({message : 'Error with save file'})
             setTimeout(async () => {
-                if(extension !=='mp3' && extension !=='wav') {
+                if(extension !=='wav') {
                     try {
-                        let convertFile;
-                        convertFile = await GenerateAudioFromVideo(audioPath, name)
-                        audioPath = uploadDir+ convertFile.newName;
-                        const uploadConvert = await uploadFile(convertFile.newName, uploadDir+ convertFile.newName, 'audio/mp3')
-                        if (uploadConvert.success)
-                        {
-                            UploadService.createTable({
-                                name: convertFile.newName,
-                                video_generated: 1,
-                                audio_generated: 0,
-                                status: 'finished',
-                                rank: req.body.rank,
-                                original_name: file.name,
-                                hide: req.body.hide,
-                                voice: req.body.publicly,
-                                share: Number(req.body.publicly),
-                                contribute_to_science: req.body.contribute_to_science,
-                                created_at: Date.now(),
-                                user: (user? user._id: null),
-                                user_id: (user? user._id: null),
-                                converted: 1,
-                            })
+                        let buffer = fs.readFileSync(audioPath);
+                        let base64data = buffer.toString('base64');
+                        const convertRequest = {
+                            file: {
+                                type:'video/x-msvideo',
+                                data: base64data
+                            },
+                            webhook_url: 'http://'+ process.env.SERVER_URL + ':'+ process.env.SERVER_PORT+'/conversion/webhook',
+                            resource_identifier: uploadObj._id
                         }
+
+                        await axios.post(process.env.CONVERT_SERVER+'/conversion/video', convertRequest, {
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        });
+                        return  res.json({ upload_id: uploadObj._id })
                     } catch(err) {
                         console.log(err)
                         return  res.status(500).json({message: 'Error with convert file'})
                     }
                 }
-
-                try{
+                // here we will proceed only wav formatted audio file to get a transcription.
+                try {
                     let audioFilePath = gcs+ '/'+name+'.'+ (extension !== 'mp3' &&  extension !=='wav'?'wav': extension);
                     let transcription = await googleSpeechTranscription(audioFilePath)
                     let transcriptionObj = await TranscriptionService.createTable({
@@ -141,12 +133,21 @@ export const uploadFileHandle = async (req, res) => {
     }
 }
 export const conversionFinishedHandle = async (req, res) => {
+    // this is a web_hook handler which will be called by conversion server.
+    // so here once we get the upload table id as resource_identifier and converted  audio file, then
+    // here we will get a transcription with that audio and save transcription table, upload that audio to GCS, create
+    // the new upload row in upload table with that audio.
+    // also we need to update the status field of upload data which id is resource_identifier to "finished"
+    // when create the new upload row with new audio file, also the status need to be "finished"
     try {
         const body = req.body;
-        if (!body.resource_Identifier)
+        if (!body.resource_identifier)
         {
             return res.json({message : 'Indentifier not found'})
         }
+        // const videoFile = body.videoFile;
+        // const audioFile = body.audioFile;
+        // const id = body.resource_identifier;
         const text = await TextDBService.createTable({
             text: req.body.text,
             share: Number(req.body.publicly),

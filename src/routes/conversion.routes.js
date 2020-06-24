@@ -4,9 +4,10 @@ import * as handlers from '../handlers/conversion.handler'
 
 const router = express.Router()
 router.use(express.json())
-router.use(ExpressJwt({ secret: process.env.SECRET_KEY }))
 
 router.post('/convert', handlers.convertVideoToMp4)
+
+router.post('/webhook', handlers.webhook)
 
 export default router
 

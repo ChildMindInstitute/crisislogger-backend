@@ -10,7 +10,7 @@ class UploadTableService {
         console.log(status)
     }
     getUserUploads(user_id){
-        return UploadTable.find({user_id: user_id})
+        return UploadTable.find({user_id: user_id}).populate('transcripts')
     }
     async storeTranscripts(transcript, upload_id) {
        return UploadTable.findOneAndUpdate({ _id: upload_id }, { transcripts: transcript, status: 'finished' })
