@@ -88,7 +88,7 @@ export const uploadFileHandle = async (req, res) => {
                                 type:'video/x-msvideo',
                                 data: base64data
                             },
-                            webhook_url: 'http://'+ process.env.SERVER_URL + ':'+ process.env.SERVER_PORT+'/conversion/webhook',
+                            webhook_url: process.env.SERVER_URL+'/conversion/webhook',
                             resource_identifier: uploadObj._id
                         }
 
