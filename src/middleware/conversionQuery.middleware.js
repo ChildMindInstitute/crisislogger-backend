@@ -8,7 +8,6 @@ export default (req, res, next) => {
     axios.post(result.webhook_url, result, {
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': req.headers['authorization']
         }
     })
     .then((response) => {
@@ -16,6 +15,6 @@ export default (req, res, next) => {
     }, (error) => {
       console.log(error);
     });
-  });
+  }, 1);
   next();
 }
