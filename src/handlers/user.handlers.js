@@ -107,6 +107,7 @@ export const changeRecordStatus  = async (req, res) => {
     try {
         let user;
         let body = req.body
+        console.log(body)
         if (!req.user || ! req.user.email)
         {
             return res.status(401).json({message : 'User information not found'})
@@ -123,7 +124,7 @@ export const changeRecordStatus  = async (req, res) => {
             let uploadObj = await UploadTable.findOne({_id: body.upload_id})
             if (body.contentType ==='contribute')
             {
-                uploadObj.contribute_to_science = body.status
+                uploadObj.contribute_to_science = !!body.status
             }
             else {
                 uploadObj.share = body.status
@@ -134,7 +135,7 @@ export const changeRecordStatus  = async (req, res) => {
             let textObj =  await Text.findOne({_id: body.upload_id})
             if (body.contentType ==='contribute')
             {
-                textObj.contribute_to_science = body.status
+                textObj.contribute_to_science = !!body.status
             }
             else {
                 textObj.share = body.status

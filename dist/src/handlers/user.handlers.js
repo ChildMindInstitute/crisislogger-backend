@@ -136,8 +136,8 @@ var changeRecordStatus = exports.changeRecordStatus = async function changeRecor
     try {
         var user = void 0;
         var body = req.body;
-        console.log(req.user);
-        if (req.user || req.user.email) {
+        console.log(body);
+        if (!req.user || !req.user.email) {
             return res.status(401).json({ message: 'User information not found' });
         }
         if (req.user && req.user.email) {
@@ -149,7 +149,7 @@ var changeRecordStatus = exports.changeRecordStatus = async function changeRecor
         if (body.type === 'upload') {
             var uploadObj = await _uploadTable4.default.findOne({ _id: body.upload_id });
             if (body.contentType === 'contribute') {
-                uploadObj.contribute_to_science = body.status;
+                uploadObj.contribute_to_science = !!body.status;
             } else {
                 uploadObj.share = body.status;
             }
@@ -157,7 +157,7 @@ var changeRecordStatus = exports.changeRecordStatus = async function changeRecor
         } else {
             var textObj = await _text4.default.findOne({ _id: body.upload_id });
             if (body.contentType === 'contribute') {
-                textObj.contribute_to_science = body.status;
+                textObj.contribute_to_science = !!body.status;
             } else {
                 textObj.share = body.status;
             }
