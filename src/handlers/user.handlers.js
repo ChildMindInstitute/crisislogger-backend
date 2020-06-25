@@ -107,7 +107,7 @@ export const changeRecordStatus  = async (req, res) => {
     try {
         let user;
         let body = req.body
-        if (req.user || req.user.email)
+        if (!req.user || ! req.user.email)
         {
             return res.status(401).json({message : 'User information not found'})
         }

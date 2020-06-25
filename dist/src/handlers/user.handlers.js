@@ -136,6 +136,7 @@ var changeRecordStatus = exports.changeRecordStatus = async function changeRecor
     try {
         var user = void 0;
         var body = req.body;
+        console.log(req.user);
         if (req.user || req.user.email) {
             return res.status(401).json({ message: 'User information not found' });
         }
