@@ -137,7 +137,6 @@ export const webhook = async (req, res) => {
                     {
                         upload.name = tempFileName+'.mp4';
                         upload.audio_generated = 1;
-                        upload.status = 'finished';
                         await UploadService.updateTable(upload._id, upload);
                     }
                     fs.unlinkSync(videoFile)

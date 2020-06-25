@@ -5,7 +5,7 @@ import * as handlers from '../handlers/conversion.handler'
 const router = express.Router()
 router.use(express.json())
 
-router.post('/convert', handlers.convertVideoToMp4)
+router.post('/video', handlers.convertVideoToMp4)
 
 router.post('/webhook', handlers.webhook)
 

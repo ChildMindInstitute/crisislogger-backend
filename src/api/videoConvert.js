@@ -1,5 +1,4 @@
 import ffmpegpath from 'ffmpeg-static'
-import path from 'path'
 import { spawn } from 'child_process'
 export const GenerateAudioFromVideo = (file, filename) => {
     return new Promise((resolve, rejects) => {

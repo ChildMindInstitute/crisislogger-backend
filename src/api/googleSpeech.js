@@ -1,4 +1,3 @@
-import { storage } from './googleCloudStorage'
 import speech from '@google-cloud/speech'
 import fs from 'fs'
 
@@ -35,7 +34,6 @@ export const googleSpeechTranscription = async (gcsFilePath) => {
             transcriptText: transcription
         }
     } catch(err){
-        console.log('Long running recognize ' + err)
         return {
             transcriptText: '',
             error: 'failRecognize'

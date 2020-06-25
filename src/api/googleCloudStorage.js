@@ -1,7 +1,4 @@
 import { Storage } from '@google-cloud/storage'
-import {file} from "googleapis/build/src/apis/file";
-import fs from 'fs'
-
 const bucketName = process.env.BUCKET_NAME
 export const storage = new Storage();
 
