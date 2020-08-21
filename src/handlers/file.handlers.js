@@ -63,6 +63,7 @@ export const uploadFileHandle = async (req, res) => {
                     audio_generated: 0,
                     status: 'processing',// for now, it will be processing status.
                     rank: 0,
+                    where_from: req.body.where_from,
                     original_name: filename,
                     hide: req.body.publicly === '2',
                     voice: req.body.voice,
@@ -116,7 +117,6 @@ export const uploadFileHandle = async (req, res) => {
                     await UploadService.storeTranscripts(transcriptionObj, uploadObj._id);
 
                 } catch(err) {
-                    console.log(err)
                     return   res.status(500).json({message: 'Error with transcription'})
                 }
                 if (fs.existsSync(audioPath))
@@ -154,6 +154,7 @@ export const conversionFinishedHandle = async (req, res) => {
             voice: req.body.voice,
             contribute_to_science: req.body.contribute_to_science,
             rank: req.body.rank,
+            where_from: req.body.where_from,
             hide:  req.body.publicly === '2',
             created_at: Date.now(),
             user_id: (user._id !== undefined? user._id: null)

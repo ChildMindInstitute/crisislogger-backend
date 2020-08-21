@@ -15,14 +15,11 @@ router.all('/*', (req, res, next) => {
     let houre = now.getHours();
     let minuts = now.getMinutes();
     let second = now.getSeconds();
-    console.log(`${houre}:${minuts}:${second} Metod: ${req.method} : ${req.path} `)
+    console.log(`${houre}:${minuts}:${second} Method: ${req.method} : ${req.path} `)
     next()
 })
-
 router.post('/signin', handlers.userSignInHandler)
-
 router.post('/signup', handlers.userSignUpHandler)
-
 router.delete('/:id', handlers.userDeleteHandler)
 router.put('/change-password', checkToken, handlers.changePassword)
 router.put('/update-profile', checkToken, handlers.userUpdateHandler)
@@ -30,4 +27,5 @@ router.get('/me', checkToken, handlers.getAccount)
 router.get('/getrecords' ,checkToken,  handlers.getAllRecords)
 router.post('/changeRecordStatus' ,checkToken,  handlers.changeRecordStatus)
 router.post('/removeRecords' ,checkToken,  handlers.removeRecordsHandler)
+router.post('/questionnaire', handlers.saveUserQuestionnaire);
 export default router

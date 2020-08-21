@@ -71,8 +71,14 @@ export const userSignUpHandler = async (req, res) => {
             }
 
         }
-        return res.status(200).json({user : user})
+        let questionnaireRequired = false;
+        if (body.where_from === process.env.MAINDOMAIN || !user.referral_code.length )
+        {
+            questionnaireRequired = true
+        }
+        return res.status(200).json({user : user, questionnaireRequired: questionnaireRequired})
     } catch(err) {
+        console.log(err)
         if(err.name == 'MongoError') {
             return  res.status(400).json({ message: 'The email address already exist', code: 1 })
         }
@@ -228,7 +234,6 @@ export  const changePassword = async (req, res) => {
         if (req.user && req.user.email)
         {
             let body = req.body;
-            console.log(body)
             let user = await UserService.getUserIdByEmail(req.user.email)
             let isAuth = bcrypt.compareSync(body.old_password, user.password)
             if(isAuth) {
@@ -248,24 +253,22 @@ export  const changePassword = async (req, res) => {
         }
 
     } catch(err) {
-        console.log(err)
         return res.status(200).json({message: err})
     }
 }
-export const saveUserQuestionnary = async (req, res) => {
+export const saveUserQuestionnaire = async (req, res) => {
     try {
         if (req.user && req.user.email)
         {
             const user = await UserService.getUserIdByEmail(req.user.email)
             const userId = user._id
-            await questionnaryService.createDBObject(userId, req.body.questionnaryData)
+            await questionnaryService.createDBObject(userId, req.body.questionnaireData)
         }
         else {
             return res.status(401).json({message : 'Unauthorized'})
         }
         return res.status(200).json({message: 'Successfully updated'})
     } catch(err) {
-        console.log(err)
         return res.status(200).json({message: err})
     }
 }

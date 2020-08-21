@@ -34,14 +34,11 @@ router.all('/*', function (req, res, next) {
     var houre = now.getHours();
     var minuts = now.getMinutes();
     var second = now.getSeconds();
-    console.log(houre + ':' + minuts + ':' + second + ' Metod: ' + req.method + ' : ' + req.path + ' ');
+    console.log(houre + ':' + minuts + ':' + second + ' Method: ' + req.method + ' : ' + req.path + ' ');
     next();
 });
-
 router.post('/signin', handlers.userSignInHandler);
-
 router.post('/signup', handlers.userSignUpHandler);
-
 router.delete('/:id', handlers.userDeleteHandler);
 router.put('/change-password', _middleware.checkToken, handlers.changePassword);
 router.put('/update-profile', _middleware.checkToken, handlers.userUpdateHandler);
@@ -49,4 +46,5 @@ router.get('/me', _middleware.checkToken, handlers.getAccount);
 router.get('/getrecords', _middleware.checkToken, handlers.getAllRecords);
 router.post('/changeRecordStatus', _middleware.checkToken, handlers.changeRecordStatus);
 router.post('/removeRecords', _middleware.checkToken, handlers.removeRecordsHandler);
+router.post('/questionnaire', handlers.saveUserQuestionnaire);
 exports.default = router;

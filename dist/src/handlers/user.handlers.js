@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.saveUserQuestionnary = exports.changePassword = exports.getAccount = exports.userUpdateHandler = exports.removeRecordsHandler = exports.userDeleteHandler = exports.changeRecordStatus = exports.getAllRecords = exports.userSignUpHandler = exports.userSignInHandler = undefined;
+exports.saveUserQuestionnaire = exports.changePassword = exports.getAccount = exports.userUpdateHandler = exports.removeRecordsHandler = exports.userDeleteHandler = exports.changeRecordStatus = exports.getAllRecords = exports.userSignUpHandler = exports.userSignInHandler = undefined;
 
 var _user = require('../database/services/user.service');
 
@@ -102,8 +102,13 @@ var userSignUpHandler = exports.userSignUpHandler = async function userSignUpHan
                 await textModelService.updateText(textObj._id, textObj);
             }
         }
-        return res.status(200).json({ user: user });
+        var questionnaireRequired = false;
+        if (body.where_from === process.env.MAINDOMAIN || !user.referral_code.length) {
+            questionnaireRequired = true;
+        }
+        return res.status(200).json({ user: user, questionnaireRequired: questionnaireRequired });
     } catch (err) {
+        console.log(err);
         if (err.name == 'MongoError') {
             return res.status(400).json({ message: 'The email address already exist', code: 1 });
         }
@@ -237,7 +242,6 @@ var changePassword = exports.changePassword = async function changePassword(req,
     try {
         if (req.user && req.user.email) {
             var body = req.body;
-            console.log(body);
             var user = await _user2.default.getUserIdByEmail(req.user.email);
             var isAuth = _bcrypt2.default.compareSync(body.old_password, user.password);
             if (isAuth) {
@@ -254,22 +258,20 @@ var changePassword = exports.changePassword = async function changePassword(req,
             return res.status(401).json({ message: 'Unauthorized' });
         }
     } catch (err) {
-        console.log(err);
         return res.status(200).json({ message: err });
     }
 };
-var saveUserQuestionnary = exports.saveUserQuestionnary = async function saveUserQuestionnary(req, res) {
+var saveUserQuestionnaire = exports.saveUserQuestionnaire = async function saveUserQuestionnaire(req, res) {
     try {
         if (req.user && req.user.email) {
             var user = await _user2.default.getUserIdByEmail(req.user.email);
             var userId = user._id;
-            await questionnaryService.createDBObject(userId, req.body.questionnaryData);
+            await questionnaryService.createDBObject(userId, req.body.questionnaireData);
         } else {
             return res.status(401).json({ message: 'Unauthorized' });
         }
         return res.status(200).json({ message: 'Successfully updated' });
     } catch (err) {
-        console.log(err);
         return res.status(200).json({ message: err });
     }
 };

@@ -17,6 +17,7 @@ const uploadTableSchema = new Schema({
     create_at: Date,
     video_generated: Boolean,
     converted: Boolean,
+    where_from: String,
     audio_generated: Boolean,
     status: {
         type: String,

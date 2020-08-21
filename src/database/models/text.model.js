@@ -14,6 +14,7 @@ const textSchema = new Schema({
     user_id: String,
     created_at: Date,
     rank: Number,
+    where_from: String,
     hide: { type: Boolean, default: true }
 })
 
