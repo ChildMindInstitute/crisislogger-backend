@@ -7,7 +7,7 @@ router.use(express.json())
 
 router.post('/upload', handlers.uploadFileHandle)
 router.post('/conversion_finished', handlers.uploadFileHandle)
-
+router.get('/transcriptions', handlers.getGalleryData)
 router.post('/text', handlers.uploadTextHandle)
 export default router
 

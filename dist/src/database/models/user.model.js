@@ -8,6 +8,10 @@ var _mongoose = require('mongoose');
 
 var _mongoose2 = _interopRequireDefault(_mongoose);
 
+var _mongooseEncryption = require('mongoose-encryption');
+
+var _mongooseEncryption2 = _interopRequireDefault(_mongooseEncryption);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Schema = _mongoose2.default.Schema;
@@ -20,15 +24,8 @@ var userSchema = new Schema({
     role: Number,
     token: String,
     referral_code: String,
-    country: String,
-    uploads: [{
-        type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Uploads'
-    }],
-    texts: [{
-        type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Text'
-    }]
+    country: String
 });
-
+userSchema.plugin(_mongooseEncryption2.default, { secret: process.env.APP_KEY, encryptedFields: ['name', 'country'] });
 var User = Model('User', userSchema);
-
 exports.default = User;

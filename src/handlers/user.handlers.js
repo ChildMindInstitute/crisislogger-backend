@@ -1,7 +1,6 @@
 import UserService from '../database/services/user.service'
 import bcrypt from 'bcrypt'
 import JWT from 'jsonwebtoken'
-import User from '../database/models/user.model'
 import UploadTableService from "../database/services/uploadTable.service";
 import TranscriptionModelService from "../database/services/transcription.service";
 import QuestionnaireService from '../database/services/questionnary.service';
@@ -78,7 +77,6 @@ export const userSignUpHandler = async (req, res) => {
         }
         return res.status(200).json({user : user, questionnaireRequired: questionnaireRequired})
     } catch(err) {
-        console.log(err)
         if(err.name == 'MongoError') {
             return  res.status(400).json({ message: 'The email address already exist', code: 1 })
         }
@@ -98,14 +96,12 @@ export const getAllRecords  = async (req, res) => {
         {
             return res.status(401).json({message : 'User does not exist'})
         }
-        let uploads = await  uploadService.getUserUploads(user._id)
-        let texts = await  textModelService.getUserTexts(user._id)
+        let where_from = req.headers.origin.split('//')[1];
+        let uploads = await  uploadService.getUserUploads(user._id, where_from)
+        let texts = await  textModelService.getUserTexts(user._id, where_from)
 
         return res.status(200).json({records : {uploads: uploads, texts: texts}})
     } catch(err) {
-        if(err.name == 'MongoError') {
-            return  res.status(400).json({ message: 'The email address already exist', code: 1 })
-        }
         return res.status(500).json({message: err})
     }
 }
@@ -113,7 +109,6 @@ export const changeRecordStatus  = async (req, res) => {
     try {
         let user;
         let body = req.body
-        console.log(body)
         if (!req.user || ! req.user.email)
         {
             return res.status(401).json({message : 'User information not found'})

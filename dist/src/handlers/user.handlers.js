@@ -108,7 +108,6 @@ var userSignUpHandler = exports.userSignUpHandler = async function userSignUpHan
         }
         return res.status(200).json({ user: user, questionnaireRequired: questionnaireRequired });
     } catch (err) {
-        console.log(err);
         if (err.name == 'MongoError') {
             return res.status(400).json({ message: 'The email address already exist', code: 1 });
         }
@@ -126,14 +125,12 @@ var getAllRecords = exports.getAllRecords = async function getAllRecords(req, re
         if (!user) {
             return res.status(401).json({ message: 'User does not exist' });
         }
-        var uploads = await uploadService.getUserUploads(user._id);
-        var texts = await textModelService.getUserTexts(user._id);
+        var where_from = req.headers.origin.split('//')[1];
+        var uploads = await uploadService.getUserUploads(user._id, where_from);
+        var texts = await textModelService.getUserTexts(user._id, where_from);
 
         return res.status(200).json({ records: { uploads: uploads, texts: texts } });
     } catch (err) {
-        if (err.name == 'MongoError') {
-            return res.status(400).json({ message: 'The email address already exist', code: 1 });
-        }
         return res.status(500).json({ message: err });
     }
 };
@@ -141,7 +138,6 @@ var changeRecordStatus = exports.changeRecordStatus = async function changeRecor
     try {
         var user = void 0;
         var body = req.body;
-        console.log(body);
         if (!req.user || !req.user.email) {
             return res.status(401).json({ message: 'User information not found' });
         }

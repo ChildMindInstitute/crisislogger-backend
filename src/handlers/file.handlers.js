@@ -1,6 +1,5 @@
 import { uploadFile, getPublicURL } from '../api/googleCloudStorage'
 import { googleSpeechTranscription } from '../api/googleSpeech'
-import { GenerateAudioFromVideo } from '../api/videoConvert'
 import TextService from '../database/services/text.service'
 import TranscriptionModelService from '../database/services/transcription.service'
 import UploadTableService from '../database/services/uploadTable.service'
@@ -133,21 +132,12 @@ export const uploadFileHandle = async (req, res) => {
     }
 }
 export const conversionFinishedHandle = async (req, res) => {
-    // this is a web_hook handler which will be called by conversion server.
-    // so here once we get the upload table id as resource_identifier and converted  audio file, then
-    // here we will get a transcription with that audio and save transcription table, upload that audio to GCS, create
-    // the new upload row in upload table with that audio.
-    // also we need to update the status field of upload data which id is resource_identifier to "finished"
-    // when create the new upload row with new audio file, also the status need to be "finished"
     try {
         const body = req.body;
         if (!body.resource_identifier)
         {
-            return res.json({message : 'Indentifier not found'})
+            return res.json({message : 'Identifier not found'})
         }
-        // const videoFile = body.videoFile;
-        // const audioFile = body.audioFile;
-        // const id = body.resource_identifier;
         const text = await TextDBService.createTable({
             text: req.body.text,
             share: Number(req.body.publicly),
@@ -197,9 +187,24 @@ export const uploadTextHandle = async (req, res) => {
             rank: req.body.rank,
             hide:  req.body.publicly === '2',
             created_at: Date.now(),
+            where_from: req.body.where_from,
             user_id: (user._id !== undefined? user._id: null)
         })
         return  res.json({ upload_id: text._id })
+    } catch(err) {
+        console.log(err)
+        return  res.status(500).json({message: err})
+    }
+}
+
+export const getGalleryData = async (req, res) => {
+    try {
+        let page = parseInt(req.query.page);
+        let searchTxt = req.query.searchTxt;
+        let uploads = await  UploadService.paginate(page, searchTxt)
+        let texts = await  TextDBService.paginate(page, searchTxt);
+        uploads = uploads.concat(texts);
+        return  res.json({ uploads: uploads })
     } catch(err) {
         console.log(err)
         return  res.status(500).json({message: err})

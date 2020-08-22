@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import encrypt from "mongoose-encryption";
 let Schema = mongoose.Schema
 let Model = mongoose.model
 
@@ -17,7 +18,7 @@ const textSchema = new Schema({
     where_from: String,
     hide: { type: Boolean, default: true }
 })
-
+textSchema.plugin(encrypt,{ secret:  process.env.APP_KEY, encryptedFields: ['text'] });
 const Text = Model('Text', textSchema)
 
 export  default  Text

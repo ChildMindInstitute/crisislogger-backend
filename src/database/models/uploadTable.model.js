@@ -1,4 +1,6 @@
 import mongoose from 'mongoose'
+import encrypt from "mongoose-encryption";
+
 let Schema = mongoose.Schema
 let Model = mongoose.model
 
@@ -11,6 +13,7 @@ const uploadTableSchema = new Schema({
         enum: [0, 1, 2],
         default: 2
     },
+    published: Boolean,
     user_id: String,
     contribute_to_science: Boolean,
     video_id: String,
@@ -31,7 +34,7 @@ const uploadTableSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId, ref: 'Transcription'
     },
 })
-
+uploadTableSchema.plugin(encrypt,{ secret:  process.env.APP_KEY });
 const UploadTable = Model('uploads', uploadTableSchema)
 
 export default UploadTable
