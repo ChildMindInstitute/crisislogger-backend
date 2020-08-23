@@ -160,7 +160,6 @@ export const webhook = async (req, res) => {
                                 text: transcription.transcriptText,
                                 created_at: upload.created_at
                             })
-                            console.log(transcriptionObj)
                             await UploadService.storeTranscripts(transcriptionObj, upload._id);
                         }
                         fs.unlinkSync(audioFile)

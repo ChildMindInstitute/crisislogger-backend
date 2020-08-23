@@ -17,7 +17,7 @@ const uploadTableSchema = new Schema({
     user_id: String,
     contribute_to_science: Boolean,
     video_id: String,
-    create_at: Date,
+    created_at: Date,
     video_generated: Boolean,
     converted: Boolean,
     where_from: String,
@@ -34,7 +34,6 @@ const uploadTableSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId, ref: 'Transcription'
     },
 })
-uploadTableSchema.plugin(encrypt,{ secret:  process.env.APP_KEY });
 const UploadTable = Model('uploads', uploadTableSchema)
 
 export default UploadTable

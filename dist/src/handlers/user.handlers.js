@@ -17,10 +17,6 @@ var _jsonwebtoken = require('jsonwebtoken');
 
 var _jsonwebtoken2 = _interopRequireDefault(_jsonwebtoken);
 
-var _user3 = require('../database/models/user.model');
-
-var _user4 = _interopRequireDefault(_user3);
-
 var _uploadTable = require('../database/services/uploadTable.service');
 
 var _uploadTable2 = _interopRequireDefault(_uploadTable);
