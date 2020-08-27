@@ -69,6 +69,7 @@ var userSignInHandler = exports.userSignInHandler = async function userSignInHan
             return res.status(401).json({ message: 'Email or password is invalid' });
         }
     } catch (err) {
+        console.log(err);
         return res.status(500).json({ message: err });
     }
 };
@@ -79,6 +80,10 @@ var userSignUpHandler = exports.userSignUpHandler = async function userSignUpHan
         var body = req.body;
         body.password = await _bcrypt2.default.hashSync(body.password, 10);
         body.token = await _jsonwebtoken2.default.sign({ role: body.role, email: body.email }, process.env.SECRET_KEY);
+        var userObject = await _user2.default.login(body.email);
+        if (userObject !== null) {
+            return res.status(400).json({ message: "Email address already exist" });
+        }
         var user = await _user2.default.register(body);
         if (body.upload_id) {
             var options = { user_id: user._id };
@@ -102,8 +107,9 @@ var userSignUpHandler = exports.userSignUpHandler = async function userSignUpHan
         }
         return res.status(200).json({ user: user, questionnaireRequired: questionnaireRequired });
     } catch (err) {
+        console.log(err);
         if (err.name == 'MongoError') {
-            return res.status(400).json({ message: 'The email address already exist', code: 1 });
+            return res.status(400).json({ message: 'Something went wrong, please try again later.', code: 1 });
         }
         return res.status(500).json({ message: err });
     }
@@ -141,22 +147,31 @@ var changeRecordStatus = exports.changeRecordStatus = async function changeRecor
         if (!user) {
             return res.status(401).json({ message: 'User does not exist' });
         }
+        var options = void 0;
         if (body.type === 'upload') {
             var uploadObj = await _uploadTable4.default.findOne({ _id: body.upload_id });
             if (body.contentType === 'contribute') {
-                uploadObj.contribute_to_science = !!body.status;
+                options = {
+                    contribute_to_science: !!body.status
+                };
             } else {
-                uploadObj.share = body.status;
+                options = {
+                    share: body.status
+                };
             }
-            await uploadService.updateTable(uploadObj._id, uploadObj);
+            await uploadService.updateTable(uploadObj._id, options);
         } else {
             var textObj = await _text4.default.findOne({ _id: body.upload_id });
             if (body.contentType === 'contribute') {
-                textObj.contribute_to_science = !!body.status;
+                options = {
+                    contribute_to_science: !!body.status
+                };
             } else {
-                textObj.share = body.status;
+                options = {
+                    share: body.status
+                };
             }
-            await textModelService.updateText(textObj._id, textObj);
+            await textModelService.updateText(textObj._id, options);
         }
         return res.status(200).json({ result: true });
     } catch (err) {

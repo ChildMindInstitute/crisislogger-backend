@@ -1,11 +1,12 @@
 import User from '../models/user.model'
 const UserService = {
     async login(email) {
-        let user;
-        user = await User.findOne({email});
-        return user;
+        let users = await User.find();
+        let user = users.filter(item => item.email === email.trim());
+        return user.length ? user[0]: null;
     },
    async register(userObj) {
+        console.log(userObj)
         const user = new User(userObj)
        return await user.save()
     },

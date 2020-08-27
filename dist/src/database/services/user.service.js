@@ -12,11 +12,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var UserService = {
     login: async function login(email) {
-        var user = void 0;
-        user = await _user2.default.findOne({ email: email });
-        return user;
+        var users = await _user2.default.find();
+        var user = users.filter(function (item) {
+            return item.email === email.trim();
+        });
+        return user.length ? user[0] : null;
     },
     register: async function register(userObj) {
+        console.log(userObj);
         var user = new _user2.default(userObj);
         return await user.save();
     },

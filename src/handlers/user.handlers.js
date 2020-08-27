@@ -36,6 +36,7 @@ export const userSignInHandler = async (req, res) => {
             return res.status(401).json({message: 'Email or password is invalid'})
         }
     } catch(err) {
+        console.log(err)
         return res.status(500).json({message: err})
     }
 }
@@ -46,6 +47,11 @@ export const userSignUpHandler = async (req, res) => {
         let body = req.body
         body.password = await bcrypt.hashSync(body.password, 10)
         body.token = await JWT.sign({role: body.role, email: body.email}, process.env.SECRET_KEY)
+        let userObject = await UserService.login(body.email)
+        if (userObject !== null)
+        {
+            return res.status(400).json({message : "Email address already exist"});
+        }
         let user = await UserService.register(body)
         if (body.upload_id)
         {
@@ -75,8 +81,9 @@ export const userSignUpHandler = async (req, res) => {
         }
         return res.status(200).json({user : user, questionnaireRequired: questionnaireRequired})
     } catch(err) {
+        console.log(err)
         if(err.name == 'MongoError') {
-            return  res.status(400).json({ message: 'The email address already exist', code: 1 })
+            return  res.status(400).json({ message: 'Something went wrong, please try again later.', code: 1 })
         }
         return res.status(500).json({message: err})
     }

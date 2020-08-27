@@ -19,13 +19,13 @@ var Model = _mongoose2.default.model;
 
 var userSchema = new Schema({
     name: String,
-    email: { type: String, unique: true },
+    email: { type: String },
     password: String,
     role: Number,
     token: String,
     referral_code: String,
     country: String
 });
-userSchema.plugin(_mongooseEncryption2.default, { secret: process.env.APP_KEY, encryptedFields: ['name', 'country'] });
+userSchema.plugin(_mongooseEncryption2.default, { secret: process.env.APP_KEY, encryptedFields: ['name', 'country', 'email'] });
 var User = Model('User', userSchema);
 exports.default = User;
