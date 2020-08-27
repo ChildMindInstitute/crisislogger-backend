@@ -118,28 +118,37 @@ export const changeRecordStatus  = async (req, res) => {
         {
             return res.status(401).json({message : 'User does not exist'})
         }
+        let options;
         if (body.type ==='upload')
         {
             let uploadObj = await UploadTable.findOne({_id: body.upload_id})
             if (body.contentType ==='contribute')
             {
-                uploadObj.contribute_to_science = !!body.status
+                options = {
+                    contribute_to_science: !!body.status
+                }
             }
             else {
-                uploadObj.share = body.status
+                options =  {
+                    share : body.status
+                }
             }
-            await  uploadService.updateTable(uploadObj._id, uploadObj)
+            await  uploadService.updateTable(uploadObj._id, options)
         }
         else {
             let textObj =  await Text.findOne({_id: body.upload_id})
             if (body.contentType ==='contribute')
             {
-                textObj.contribute_to_science = !!body.status
+                options = {
+                    contribute_to_science : !!body.status
+                }
             }
             else {
-                textObj.share = body.status
+                options = {
+                    share: body.status
+                }
             }
-            await  textModelService.updateText(textObj._id, textObj)
+            await  textModelService.updateText(textObj._id, options)
         }
         return res.status(200).json({result: true})
     } catch(err) {
