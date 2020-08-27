@@ -11,8 +11,8 @@ class TextService {
     {
         return await Text.find({_id: _id});
     }
-    async updateText(id, obj){
-        await Text.updateOne({_id: id}, obj, {upsert: true});
+    async updateText(id, options){
+        await Text.updateOne({_id: id}, options);
     }
     async paginate(page, searchText)
     {

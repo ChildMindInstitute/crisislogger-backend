@@ -11,7 +11,7 @@ class TranscriptionModelService {
     }
     async updateTranscriptionTable(id, obj)
     {
-        await TranscriptionModel.updateOne({_id: id}, obj, {upsert: true});
+        await TranscriptionModel.updateOne({_id: id}, obj);
     }
 }
 export default TranscriptionModelService

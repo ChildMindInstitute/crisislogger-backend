@@ -81,21 +81,19 @@ var userSignUpHandler = exports.userSignUpHandler = async function userSignUpHan
         body.token = await _jsonwebtoken2.default.sign({ role: body.role, email: body.email }, process.env.SECRET_KEY);
         var user = await _user2.default.register(body);
         if (body.upload_id) {
+            var options = { user_id: user._id };
             var uploadObj = await _uploadTable4.default.findOne({ _id: body.upload_id });
             if (uploadObj) {
-                uploadObj.user_id = user._id;
-                uploadObj.user = user._id;
-                await uploadService.updateTable(uploadObj._id, uploadObj);
+                await uploadService.updateTable(uploadObj._id, options);
                 var transcriptions = await _transcription4.default.findOne({ upload_id: uploadObj._id });
                 if (transcriptions) {
-                    transcriptions.user_id = uploadObj.user_id;
-                    await transcriptService.updateTranscriptionTable(transcriptions._id, transcriptions);
+                    await transcriptService.updateTranscriptionTable(transcriptions._id, options);
                 }
             }
             var textObj = await _text4.default.findOne({ _id: body.upload_id });
             if (textObj) {
-                textObj.user_id = user._id;
-                await textModelService.updateText(textObj._id, textObj);
+                var _options = { user_id: user._id };
+                await textModelService.updateText(textObj._id, _options);
             }
         }
         var questionnaireRequired = false;

@@ -49,24 +49,22 @@ export const userSignUpHandler = async (req, res) => {
         let user = await UserService.register(body)
         if (body.upload_id)
         {
+            let options = {user_id: user._id}
             let uploadObj = await UploadTable.findOne({_id: body.upload_id})
             if (uploadObj)
             {
-                uploadObj.user_id = user._id;
-                uploadObj.user = user._id;
-                await  uploadService.updateTable(uploadObj._id, uploadObj)
+                await  uploadService.updateTable(uploadObj._id, options)
                 let transcriptions = await TranscriptionModel.findOne({upload_id: uploadObj._id})
                 if (transcriptions)
                 {
-                    transcriptions.user_id = uploadObj.user_id
-                    await  transcriptService.updateTranscriptionTable(transcriptions._id, transcriptions)
+                    await  transcriptService.updateTranscriptionTable(transcriptions._id, options)
                 }
             }
             let textObj =  await Text.findOne({_id: body.upload_id})
             if (textObj)
             {
-                textObj.user_id = user._id
-               await  textModelService.updateText(textObj._id, textObj)
+                let options = {user_id: user._id}
+               await  textModelService.updateText(textObj._id, options)
             }
 
         }

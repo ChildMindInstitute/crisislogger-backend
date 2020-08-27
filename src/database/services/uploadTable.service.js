@@ -5,8 +5,8 @@ class UploadTableService {
         const obj = new UploadTable(createObj)
         return obj.save()
     }
-    async updateTable(id, data) {
-        const status = await UploadTable.updateOne({_id: id}, data, {upsert: true});
+    async updateTable(id, options) {
+        const status = await UploadTable.updateOne({_id: id}, options);
     }
     async getUserUploads(user_id, where_from){
         return UploadTable.find({user_id: user_id, where_from: where_from}).populate('transcripts');
