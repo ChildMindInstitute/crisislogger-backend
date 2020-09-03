@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.saveUserQuestionnaire = exports.changePassword = exports.getAccount = exports.userUpdateHandler = exports.removeRecordsHandler = exports.userDeleteHandler = exports.changeRecordStatus = exports.getAllRecords = exports.userSignUpHandler = exports.userSignInHandler = undefined;
+exports.closeMyAccount = exports.saveUserQuestionnaire = exports.changePassword = exports.getAccount = exports.userUpdateHandler = exports.removeRecordsHandler = exports.userDeleteHandler = exports.changeRecordStatus = exports.getAllRecords = exports.userSignUpHandler = exports.userSignInHandler = undefined;
 
 var _user = require('../database/services/user.service');
 
@@ -56,11 +56,12 @@ var userSignInHandler = exports.userSignInHandler = async function userSignInHan
     try {
         var body = req.body;
         var userObject = await _user2.default.login(body.email);
+        console.log(userObject);
         if (userObject === null) {
             return res.status(401).json({ message: "User doesn't exist" });
         }
         var isAuth = _bcrypt2.default.compareSync(body.password, userObject.password);
-        var token = await _jsonwebtoken2.default.sign({ role: userObject.role, email: body.email }, process.env.SECRET_KEY);
+        var token = await _jsonwebtoken2.default.sign({ role: userObject.role, email: userObject.email }, process.env.SECRET_KEY);
         await _user2.default.updateToken(token);
         userObject.token = token;
         if (isAuth) {
@@ -215,12 +216,27 @@ var userUpdateHandler = exports.userUpdateHandler = async function userUpdateHan
     try {
         if (req.user && req.user.email) {
             var user = await _user2.default.getUserIdByEmail(req.user.email);
-            var token = await _jsonwebtoken2.default.sign({ role: user.role, email: user.email }, process.env.SECRET_KEY);
-            user.email = req.body.email;
-            user.name = req.body.name;
-            user.token = token;
-            await _user2.default.update(user._id, user);
-            return res.status(200).json({ result: user });
+            var userObject = await _user2.default.login(req.body.email);
+            if (userObject !== null) {
+                return res.status(400).json({ message: "Email address already exist" });
+            }
+            if (!user) {
+                return res.status(401).json({ message: 'Unauthorized' });
+            }
+            var token = await _jsonwebtoken2.default.sign({ role: user.role, email: req.body.email }, process.env.SECRET_KEY);
+            await _user2.default.delete(user._id);
+            var userObj = {
+                email: req.body.email,
+                name: req.body.name,
+                token: token,
+                role: user.role,
+                referral_code: user.referral_code,
+                _id: user._id,
+                password: user.password,
+                country: user.country
+            };
+            var createdUser = await _user2.default.register(userObj);
+            return res.status(200).json({ result: createdUser });
         } else {
             return res.status(401).json({ message: 'Unauthorized' });
         }
@@ -234,7 +250,11 @@ var getAccount = exports.getAccount = async function getAccount(req, res) {
     try {
         if (req.user && req.user.email) {
             var user = await _user2.default.getUserIdByEmail(req.user.email);
-            return res.status(200).json({ result: user });
+            if (user) {
+                return res.status(200).json({ result: user });
+            } else {
+                return res.status(401).json({ result: null });
+            }
         } else {
             return res.status(401).json({ message: 'Unauthorized' });
         }
@@ -252,9 +272,11 @@ var changePassword = exports.changePassword = async function changePassword(req,
             if (isAuth) {
                 body.new_password = await _bcrypt2.default.hashSync(body.new_password, 10);
                 body.token = await _jsonwebtoken2.default.sign({ role: user.role, email: user.email }, process.env.SECRET_KEY);
-                user.token = body.token;
-                user.password = body.new_password;
-                await _user2.default.update(user._id, user);
+                var obj = {
+                    token: body.token,
+                    password: body.new_password
+                };
+                await _user2.default.update(user._id, obj);
                 return res.status(200).json({ result: user });
             } else {
                 return res.status(200).json({ message: 'Old password is invalid' });
@@ -272,6 +294,22 @@ var saveUserQuestionnaire = exports.saveUserQuestionnaire = async function saveU
             var user = await _user2.default.getUserIdByEmail(req.user.email);
             var userId = user._id;
             await questionnaryService.createDBObject(userId, req.body.questionnaireData);
+        } else {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+        return res.status(200).json({ message: 'Successfully updated' });
+    } catch (err) {
+        return res.status(200).json({ message: err });
+    }
+};
+var closeMyAccount = exports.closeMyAccount = async function closeMyAccount(req, res) {
+    try {
+        if (req.user && req.user.email) {
+            var user = await _user2.default.getUserIdByEmail(req.user.email);
+            if (!user) {
+                return res.status(401).json({ message: 'Unauthorized' });
+            }
+            await _user2.default.delete(user._id);
         } else {
             return res.status(401).json({ message: 'Unauthorized' });
         }

@@ -20,6 +20,7 @@ router.all('/*', (req, res, next) => {
 })
 router.post('/signin', handlers.userSignInHandler)
 router.post('/signup', handlers.userSignUpHandler)
+router.post('/removeAccount', handlers.closeMyAccount)
 router.delete('/:id', handlers.userDeleteHandler)
 router.put('/change-password', checkToken, handlers.changePassword)
 router.put('/update-profile', checkToken, handlers.userUpdateHandler)

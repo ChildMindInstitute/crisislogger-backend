@@ -19,18 +19,39 @@ const TranscriptionService = new TranscriptionModelService()
  * @param {function} callback 
  */
 const convert = (input, output, callback) => {
-    ffmpeg(input)
-        .output(output)
-        .on('start', () => {
-            console.log('conversion started',  new Date().toISOString());
-        })
-        .on('end', () => {                    
-            console.log('conversion ended',  new Date().toISOString());
-            callback(null);
-        }).on('error', function(err){
+    if (output.indexOf('mp3') !== false)
+    {
+        ffmpeg(input)
+            .output(output)
+            .audioCodec('libfdk_aac')
+            .on('start', () => {
+                console.log('conversion started',  new Date().toISOString());
+            })
+            .on('end', () => {
+                console.log('conversion ended',  new Date().toISOString());
+                callback(null);
+            }).on('error', function(err){
             console.log('error: ', err);
             callback(err);
         }).run();
+    }
+    else {
+        ffmpeg(input)
+            .output(output)
+            .audioCodec('libfdk_aac')
+            .videoCodec('libx264')
+            .on('start', () => {
+                console.log('conversion started',  new Date().toISOString());
+            })
+            .on('end', () => {
+                console.log('conversion ended',  new Date().toISOString());
+                callback(null);
+            }).on('error', function(err){
+            console.log('error: ', err);
+            callback(err);
+        }).run();
+    }
+
 }
 
 /**

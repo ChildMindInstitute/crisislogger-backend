@@ -13,13 +13,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var UserService = {
     login: async function login(email) {
         var users = await _user2.default.find();
+        console.log(users);
         var user = users.filter(function (item) {
             return item.email === email.trim();
         });
         return user.length ? user[0] : null;
     },
     register: async function register(userObj) {
-        console.log(userObj);
         var user = new _user2.default(userObj);
         return await user.save();
     },
@@ -33,7 +33,11 @@ var UserService = {
         _user2.default.findOneAndUpdate({ _id: userId }, { token: token });
     },
     getUserIdByEmail: async function getUserIdByEmail(email) {
-        return _user2.default.findOne({ email: email });
+        var users = await _user2.default.find();
+        var user = users.filter(function (item) {
+            return item.email === email.trim();
+        });
+        return user.length ? user[0] : null;
     }
 };
 

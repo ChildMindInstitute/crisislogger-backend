@@ -17,13 +17,14 @@ export const userSignInHandler = async (req, res) => {
     try {
         let body = req.body
         let userObject = await UserService.login(body.email)
+        console.log(userObject)
         if (userObject === null)
         {
             return res.status(401).json({message : "User doesn't exist"});
         }
        let isAuth = bcrypt.compareSync(body.password, userObject.password)
        let token = await JWT.sign(
-           { role: userObject.role, email: body.email },
+           { role: userObject.role, email: userObject.email },
            process.env.SECRET_KEY
        )
         await UserService.updateToken(token)
@@ -203,15 +204,32 @@ export const userUpdateHandler = async (req, res) => {
         if (req.user && req.user.email)
         {
             let user = await UserService.getUserIdByEmail(req.user.email)
+            let userObject = await UserService.login(req.body.email)
+            if (userObject !== null)
+            {
+                return res.status(400).json({message : "Email address already exist"});
+            }
+            if (!user)
+            {
+                return res.status(401).json({message : 'Unauthorized'})
+            }
             let token = await JWT.sign(
-                { role: user.role, email: user.email },
+                { role: user.role, email: req.body.email },
                 process.env.SECRET_KEY
             )
-            user.email  = req.body.email
-            user.name  = req.body.name
-            user.token  = token
-            await UserService.update(user._id, user)
-            return  res.status(200).json({result: user})
+            await UserService.delete(user._id)
+            const userObj = {
+                email: req.body.email,
+                name: req.body.name,
+                token: token,
+                role: user.role,
+                referral_code: user.referral_code,
+                _id: user._id,
+                password: user.password,
+                country: user.country
+            }
+            let createdUser = await UserService.register(userObj)
+            return  res.status(200).json({result: createdUser})
         }
         else {
             return res.status(401).json({message : 'Unauthorized'})
@@ -227,7 +245,13 @@ export const getAccount = async (req, res) => {
         if (req.user && req.user.email)
         {
             let user = await UserService.getUserIdByEmail(req.user.email)
-            return  res.status(200).json({result : user})
+            if (user)
+            {
+                return  res.status(200).json({result : user})
+            }
+            else {
+                return  res.status(401).json({result : null})
+            }
         }
         else {
             return res.status(401).json({message : 'Unauthorized'})
@@ -248,9 +272,11 @@ export  const changePassword = async (req, res) => {
             if(isAuth) {
                 body.new_password = await bcrypt.hashSync(body.new_password, 10)
                 body.token = await JWT.sign({role: user.role, email: user.email}, process.env.SECRET_KEY)
-                user.token = body.token;
-                user.password = body.new_password;
-                await UserService.update(user._id, user)
+                const obj =  {
+                    token:  body.token,
+                    password: body.new_password
+                }
+                await UserService.update(user._id, obj)
                 return res.status(200).json({result: user})
             }
             else {
@@ -281,3 +307,23 @@ export const saveUserQuestionnaire = async (req, res) => {
         return res.status(200).json({message: err})
     }
 }
+export const closeMyAccount = async (req, res) => {
+    try {
+        if (req.user && req.user.email)
+        {
+            const user = await UserService.getUserIdByEmail(req.user.email)
+            if (!user)
+            {
+                return res.status(401).json({message : 'Unauthorized'})
+            }
+            await UserService.delete(user._id);
+        }
+        else {
+            return res.status(401).json({message : 'Unauthorized'})
+        }
+        return res.status(200).json({message: 'Successfully updated'})
+    } catch(err) {
+        return res.status(200).json({message: err})
+    }
+}
+

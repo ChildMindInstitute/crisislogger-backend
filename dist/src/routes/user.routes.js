@@ -39,6 +39,7 @@ router.all('/*', function (req, res, next) {
 });
 router.post('/signin', handlers.userSignInHandler);
 router.post('/signup', handlers.userSignUpHandler);
+router.post('/removeAccount', handlers.closeMyAccount);
 router.delete('/:id', handlers.userDeleteHandler);
 router.put('/change-password', _middleware.checkToken, handlers.changePassword);
 router.put('/update-profile', _middleware.checkToken, handlers.userUpdateHandler);

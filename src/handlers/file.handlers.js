@@ -64,7 +64,7 @@ export const uploadFileHandle = async (req, res) => {
                     rank: 0,
                     where_from: req.body.where_from,
                     original_name: filename,
-                    hide: req.body.publicly === '2',
+                    hide: 1,
                     voice: req.body.voice,
                     share: Number(req.body.publicly),
                     contribute_to_science: req.body.contribute_to_science,
@@ -146,7 +146,7 @@ export const conversionFinishedHandle = async (req, res) => {
             contribute_to_science: req.body.contribute_to_science,
             rank: req.body.rank,
             where_from: req.body.where_from,
-            hide:  req.body.publicly === '2',
+            hide:  1,
             created_at: Date.now(),
             user_id: (user._id !== undefined? user._id: null)
         })
@@ -186,7 +186,7 @@ export const uploadTextHandle = async (req, res) => {
             voice: req.body.voice,
             contribute_to_science: req.body.contribute_to_science,
             rank: req.body.rank,
-            hide:  req.body.publicly === '2',
+            hide:  1,
             created_at: Date.now(),
             where_from: req.body.where_from,
             user_id: (user._id !== undefined? user._id: null)
