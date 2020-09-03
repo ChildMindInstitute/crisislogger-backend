@@ -204,11 +204,7 @@ export const userUpdateHandler = async (req, res) => {
         if (req.user && req.user.email)
         {
             let user = await UserService.getUserIdByEmail(req.user.email)
-            let userObject = await UserService.login(req.body.email)
-            if (userObject !== null)
-            {
-                return res.status(400).json({message : "Email address already exist"});
-            }
+
             if (!user)
             {
                 return res.status(401).json({message : 'Unauthorized'})
@@ -218,6 +214,11 @@ export const userUpdateHandler = async (req, res) => {
                 process.env.SECRET_KEY
             )
             await UserService.delete(user._id)
+            let userObject = await UserService.login(req.body.email)
+            if (userObject !== null)
+            {
+                return res.status(400).json({message : "Email address already exist"});
+            }
             const userObj = {
                 email: req.body.email,
                 name: req.body.name,
