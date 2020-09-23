@@ -39,6 +39,7 @@
     "file-upload": "0.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "googleapis": "^51.0.0",
+    "json2csv": "^5.0.1",
     "mongodb": "^3.5.7",
     "mongoose": "^5.9.15",
     "mongoose-encryption": "^2.0.2",

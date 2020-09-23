@@ -1,7 +1,7 @@
 import express from 'express'
 import ExpressJwt from 'express-jwt'
 import * as handlers from '../handlers/user.handlers'
-import {checkToken} from '../middleware/middleware'
+import {checkToken,checkAdmin} from '../middleware/middleware'
 const router = express.Router()
 
 
@@ -29,4 +29,10 @@ router.get('/getrecords' ,checkToken,  handlers.getAllRecords)
 router.post('/changeRecordStatus' ,checkToken,  handlers.changeRecordStatus)
 router.post('/removeRecords' ,checkToken,  handlers.removeRecordsHandler)
 router.post('/questionnaire', handlers.saveUserQuestionnaire);
+router.get('/getAllRecords',[checkToken,checkAdmin],handlers.getAllUsersRecords)
+router.get('/upload/:id',[checkToken,checkAdmin],handlers.getUploadId)
+router.get('/text/:id',[checkToken,checkAdmin],handlers.getTextById)
+router.put('/changeApproveStatus/:id',[checkToken,checkAdmin],handlers.updateApproveStatus)
+router.put('/changePublishStatus/:id',[checkToken,checkAdmin],handlers.updatePublishStatus)
+
 export default router

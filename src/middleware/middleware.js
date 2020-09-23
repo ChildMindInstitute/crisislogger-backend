@@ -1,6 +1,7 @@
 import JWT from 'jsonwebtoken';
-
+import {ADMIN_ROLE} from '../constants'
 const  checkToken = (req, res, next) => {
+    console.log("Checking the token")
     let token = req.headers['x-access-token'] || req.headers['authorization']; // Express headers are auto converted to lowercase
     if (token.startsWith('Bearer ')) {
         // Remove Bearer from string
@@ -25,7 +26,18 @@ const  checkToken = (req, res, next) => {
         });
     }
 };
+const checkAdmin = (req,res,next)=>{
+    if(req.decoded.role === ADMIN_ROLE){
+        next()
+    }else{
+        return res.json({
+            success: false,
+            message: 'User not authorized'
+        });
+    }
+}
 
 export {
-    checkToken
+    checkToken,
+    checkAdmin
 }

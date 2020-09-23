@@ -13,7 +13,10 @@ const uploadTableSchema = new Schema({
         enum: [0, 1, 2],
         default: 2
     },
-    published: Boolean,
+    published: {
+        type:Boolean,
+        default:false
+    },
     user_id: String,
     contribute_to_science: Boolean,
     video_id: String,
@@ -22,6 +25,10 @@ const uploadTableSchema = new Schema({
     converted: Boolean,
     where_from: String,
     audio_generated: Boolean,
+    approved:{
+        type:Boolean,
+        default:false
+    },
     status: {
         type: String,
         enum: ["finished", "draft", "processing", "failed"],

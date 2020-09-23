@@ -12,10 +12,14 @@ const textSchema = new Schema({
     },
     voice: String,
     contribute_to_science: Boolean,
-    user_id: String,
+    user_id:  { type: Schema.Types.ObjectId, ref: 'User' },
     created_at: Date,
     rank: Number,
     where_from: String,
+    approved:{
+        type:Boolean,
+        default:false
+    },
     hide: { type: Boolean, default: true }
 })
 textSchema.plugin(encrypt,{ secret:  process.env.APP_KEY, encryptedFields: ['text'] });

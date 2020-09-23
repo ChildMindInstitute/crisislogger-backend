@@ -12,6 +12,7 @@ const UploadService = new UploadTableService()
 const TranscriptionService = new TranscriptionModelService()
 const TextDBService = new TextService()
 import {gcs} from '../../config'
+import { Parser } from 'json2csv'
 export const uploadFileHandle = async (req, res) => {
 
     let token = req.headers['x-access-token'] || req.headers['authorization']; // Express headers are auto converted to lowercase
@@ -207,6 +208,98 @@ export const getGalleryData = async (req, res) => {
         uploads = uploads.concat(texts);
         return  res.json({ uploads: uploads })
     } catch(err) {
+        console.log(err)
+        return  res.status(500).json({message: err})
+    }
+}
+export const downloadCsvData = async (req,res)=>{
+        function isVideo(record){
+            if(record.name != undefined && (record.name.split(".")[1] === 'webm' || record.name.split(".")[1] === 'mkv' || record.name.split(".")[1] === 'mp4')){
+                return true
+            }
+            return false
+        }
+        function isAudio(record){
+            if(record.name != undefined && (record.name.split(".")[1] === 'wav')){
+                return true
+            }
+            return false
+        }
+        function isText(record){
+            if(record.text != undefined){
+                return true
+            }
+            return false
+        }
+        function renderVideo(object){
+            if(isVideo(object)){
+                return renderStatus(object)
+            }else{
+                return ""
+            }
+        }
+        function renderAudio(object){
+            if(isAudio(object)){
+                return renderStatus(object)
+            }else{
+                return ""
+            }
+        }
+        function renderText(object){
+            if(isText(object)){
+                return renderStatus(object)
+            }else{
+                return ""
+            }
+        }
+        function renderStatus(object){
+            let str=""
+            if(!object.hide && object.approved){
+                str +="1 "
+            }else{
+                str +="0 "
+            }
+            
+            if(!object.hide && !object.approved){
+                str +="1 "
+            }else{
+                str += "0 "
+            }
+            str +="("+object.share+")"
+            return str
+        }
+    
+    try{
+        let uploads = await UploadService.getUploadsWithFilter({where_from:req.query.domain})
+        let texts = await TextDBService.getTextWithFilter({where_from:req.query.domain})
+        let combineData = [...uploads,...texts]
+        let copyData = combineData.filter((e)=>e.hide==false && e.approved == true).map(m=>({Date:m.created_at,Video:renderVideo(m),Audio:renderAudio(m),Text:renderText(m)}))
+        const fields = [
+            {
+            label:"Date",
+              value: 'date'
+            },
+            {
+                label:"Video",
+                value: 'video'
+              },
+              {
+                  label:"Audio",
+                value: 'audio'
+              }
+              , {
+                  label:"Text",
+                value: 'Text'
+              }
+          ];
+        const json2csv = new Parser(fields)
+        const csv = json2csv.parse(copyData)
+        res.header('Content-Type', 'text/csv');
+        res.header('filename', 'csv_exported.csv');
+
+        res.attachment("csv_exported.csv");
+        return res.send(csv)
+    }catch(err){
         console.log(err)
         return  res.status(500).json({message: err})
     }

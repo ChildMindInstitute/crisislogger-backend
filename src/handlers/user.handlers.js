@@ -8,6 +8,7 @@ import TextService from "../database/services/text.service";
 import UploadTable from "../database/models/uploadTable.model";
 import Text from "../database/models/text.model";
 import TranscriptionModel from "../database/models/transcription.model";
+import { text } from 'body-parser';
 const uploadService = new UploadTableService()
 const textModelService = new TextService()
 const transcriptService = new TranscriptionModelService()
@@ -56,7 +57,7 @@ export const userSignUpHandler = async (req, res) => {
         let user = await UserService.register(body)
         if (body.upload_id)
         {
-            let options = {user_id: user._id}
+            let options = {user_id: user._id,user:user._id}
             let uploadObj = await UploadTable.findOne({_id: body.upload_id})
             if (uploadObj)
             {
@@ -327,4 +328,216 @@ export const closeMyAccount = async (req, res) => {
         return res.status(200).json({message: err})
     }
 }
+export const getUploadId = async(req,res)=>{
+    try {
+        let id = req.params.id
+        console.log(id)
+        let result = await uploadService.getUploadById(id)
+        if(result){
+            if(result.user){
+                result["user"] = {_id:result.user._id,name:result.user.name,email:result.user.email}            
+            }
+            return res.status(200).json({data:result})
+        }
+        return res.status(401).json({message:"Not found"})
+    } catch(err) {
+        return res.status(200).json({message: err})
+    }
+}
+export const getTextById = async(req,res)=>{
+    try {
+        let id = req.params.id
+        let result = await textModelService.getTextWithId(id)
+        
+        if(result){
+            if(result.user_id){
+                result=result.toObject()
+                
+                result["user"]={_id:result.user_id._id,name:result.user_id.name,email:result.user_id.email}
+                delete result.user_id
+            }
+            return res.status(200).json({data:result})
+        }
+        return res.status(401).json({message:"Not found"})
+    } catch(err) {
+        return res.status(200).json({message: err})
+    }
+}
 
+export const updateApproveStatus = async(req,res)=>{
+    try {
+        let found = false
+        let id = req.params.id
+        let result = await uploadService.getUploadById(id)
+        if(!result){
+            result = await textModelService.getTextWithId(id)
+            if(result){
+                found =true
+                result = await textModelService.updateApproveStatus(id,result.approved)
+            }
+        }else{
+            found = true
+            result = await uploadService.updateApproveStatus(id,result.approved)
+            // update the upload
+        }
+        if(result){
+            return res.status(200).json({data:result})
+        }
+        return res.status(401).json({message:"Not found"})
+    } catch(err) {
+        return res.status(200).json({message: err})
+    }
+}
+export const updatePublishStatus = async(req,res)=>{
+    try {
+        let found = false
+        let id = req.params.id
+        let result = await uploadService.getUploadById(id)
+        if(!result){
+            result = await textModelService.getTextWithId(id)
+            if(result){
+                found =true
+            }
+        }else{
+            found = true
+            result = await uploadService.updatePublishStatus(id,result.published)
+        }
+        if(result){
+            return res.status(200).json({data:result})
+        }
+        return res.status(401).json({message:"Not found"})
+    } catch(err) {
+        return res.status(200).json({message: err})
+    }
+}
+
+export const getAllUsersRecords = async(req,res)=>{
+
+    try {
+        let {usersIncluded,usersExcluded,dateStart,dateEnd,searchText,refferalCode,domain} = req.query
+        let idsIncluded =[]
+        let idsExluded= []
+        let referralIds = []
+        let filter={}
+        if(refferalCode != undefined && refferalCode.length>0){
+            referralIds = await UserService.getUserIdsFromRefferals(refferalCode.split(","))
+            idsIncluded = [...idsIncluded,...referralIds]
+        }
+        if(usersIncluded != undefined && usersIncluded.length>0){
+
+            let ids  = await UserService.getUsersIdsLikeEmails(usersIncluded.split(","))
+            idsIncluded = [...idsIncluded,...ids]
+        }
+        
+        if(idsIncluded.length>0){
+            filter ={
+                $and:[
+                    {user_id:{$in:idsIncluded}}
+                ]
+            }
+        }
+        
+        if(domain!=undefined){
+            if(filter["$and"] != undefined){
+                filter["$and"] =[
+                    ...filter["$and"],
+                    {where_from:domain}
+                ]
+            }else{
+                filter["$and"]=[
+                    {where_from:domain}
+                ]
+            }
+        }
+        if(usersExcluded != undefined && usersExcluded.length>0){
+            idsExluded = await UserService.getUsersIdsLikeEmails(usersExcluded.split(","))
+            if(idsExluded.length>0){
+                if(filter["$and"] != undefined){
+                    filter["$and"]=[
+                        ...filter["$and"],
+                        {user_id:{$nin:idsExluded}}
+                    ]
+                }else{
+                    filter["$and"]=[
+                        {user_id:{$nin:idsExluded}}
+                    ]
+                }
+            }
+            
+        }
+        if(dateStart !=undefined && dateEnd!=undefined){
+            if(filter["$and"]!=undefined){
+                filter["$and"]=[
+                    ...filter["$and"],
+                    {created_at:{
+                        $gte:dateStart,
+                        $lte:dateEnd
+                    }}
+                ]
+            }else{
+                filter["$and"]=[
+                    {created_at:{
+                        $gte:dateStart,
+                        $lte:dateEnd
+                    }}
+                ]
+            }
+        }else if(dateStart !=undefined){
+            if(filter["$and"]!=undefined){
+                filter["$and"]=[
+                    ...filter["$and"],
+                    {created_at:{
+                        $gte:dateStart,
+                    }}
+                ]
+            }else{
+                filter["$and"]=[
+                    {created_at:{
+                        $gte:dateStart,
+                    }}
+                ]
+            }
+        }else if(dateEnd !=undefined){
+            if(filter["$and"]!=undefined){
+                filter["$and"]=[
+                    ...filter["$and"],
+                    {created_at:{
+                        $lte:dateEnd,
+                    }}
+                ]
+            }else{
+                filter["$and"]=[
+                    {created_at:{
+                        $lte:dateEnd,
+                    }}
+                ]
+            }
+        }
+        let textIdsToFilter=[]
+        textIdsToFilter =[ ... await (await uploadService.getUploadsContainingText(text)).map(el=>el._id)]
+        textIdsToFilter =[...textIdsToFilter, ...await (await textModelService.findTextUploadWithText(searchText)).map(el=>el._id)]
+        if(textIdsToFilter.length>0){
+            if(filter["$and"] !=undefined){
+                filter["$and"]=[...filter["$and"],{_id:{"$in":textIdsToFilter}}]
+            }else{
+                filter["$and"]=[{_id:{"$in":textIdsToFilter}}]
+            }
+        }
+        
+        
+        let uploads = await uploadService.getUploadsWithFilter(filter)
+        let texts = await textModelService.getTextWithFilter(filter)
+        let combineData = [...uploads,...texts]
+        combineData.sort(function(a,b){
+            let date1 = new Date(a.created_at)
+            let date2 = new Date(b.created_at)
+            return date1 - date2
+        })    
+        return res.status(200).json({
+            records:combineData,
+            filter
+        })
+    } catch(err) {
+        return res.status(500).json({message: err})
+    }
+}

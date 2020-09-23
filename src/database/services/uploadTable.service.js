@@ -1,3 +1,4 @@
+import { retry } from 'async';
 import UploadTable from '../models/uploadTable.model'
 
 class UploadTableService {
@@ -9,10 +10,36 @@ class UploadTableService {
         const status = await UploadTable.updateOne({_id: id}, options);
     }
     async getUserUploads(user_id, where_from){
-        return UploadTable.find({user_id: user_id, where_from: where_from}).populate('transcripts');
+        return await UploadTable.find({user_id: user_id, where_from: where_from}).populate('transcripts');
+    }
+    
+    async getUploadById(id){
+        return await UploadTable.findOne({_id:id}).populate({path:'transcripts'}).populate({path:'user'})
+        
+    }
+    async updateApproveStatus(id,status){
+        return await UploadTable.findOneAndUpdate({_id:id},{approved:!status},{new:true}).populate({path:'transcripts'})
+        
+    }
+    async updatePublishStatus(id,status){
+        return await UploadTable.findOneAndUpdate({_id:id},{published:!status},{new:true}).populate({path:'transcripts'})
+        
+    }
+    async getUploadsContainingText(text){
+        let list=[]
+        let res = await UploadTable.find().populate('transcripts');
+        res.forEach(el=>{
+            if(el.transcripts !=undefined && el.transcripts.text.includes(text)){
+                list.push(el)
+            }
+        })
+        return list
+    }
+    async getUploadsWithFilter(filter){
+        return await UploadTable.find(filter)
     }
     async storeTranscripts(transcript, upload_id) {
-       return UploadTable.findOneAndUpdate({ _id: upload_id }, { transcripts: transcript, status: 'finished' })
+       return await UploadTable.findOneAndUpdate({ _id: upload_id }, { transcripts: transcript, status: 'finished' })
     }
     async paginate(page, searchText) {
         const page_size = 8;

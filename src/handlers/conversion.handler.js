@@ -16,10 +16,10 @@ const TranscriptionService = new TranscriptionModelService()
  * Convert file to mp4
  * @param {String} input Input file path
  * @param {String} output Output file path
- * @param {function} callback
+ * @param {function} callback 
  */
 const convert = (input, output, callback) => {
-    if (output.indexOf('mp4') !== false)
+    if (output.indexOf('mp3') !== false)
     {
         ffmpeg(input)
             .output(output)
@@ -56,7 +56,7 @@ const convert = (input, output, callback) => {
 
 /**
  * Queue task for converting video & getting audio and sending path
- * @param {Object} data
+ * @param {Object} data 
  */
 const createFile = (data) => {
     const tempFileName =  v1();
@@ -86,7 +86,7 @@ const createFile = (data) => {
             };
 
             const fileType = await FileType.fromFile(tempFile);
-          if (fileType.ext === 'mkv'||fileType.ext === 'webm') {
+            if (fileType.ext === 'mp4') {
                 convert(tempFile, resultFile, (err) => {
                     if (err) {
                         console.log(err);
@@ -95,7 +95,7 @@ const createFile = (data) => {
                     let videoBuffer = fs.readFileSync(resultFile);
                     let videoData = videoBuffer.toString('base64');
                     result.videoFile = {
-                        type:'video/x-msvideo',
+                        type : 'audio/x-wav',
                         data: videoData
                     };
                     fs.unlinkSync(tempFile);

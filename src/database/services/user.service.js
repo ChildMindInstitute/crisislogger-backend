@@ -22,6 +22,26 @@ const UserService = {
         let users = await User.find();
         let user = users.filter(item => item.email === email.trim());
         return user.length ? user[0]: null;
+    },
+    async getUsersIdsLikeEmails(emails=[]){
+        let ids =[]
+        let users = await User.find()
+        emails.forEach(email=>{
+            ids = [...ids,...users.filter(user=>user.email.includes(email.trim())).map(e=>e._id)]
+        })
+        return ids
+    },
+    async getUserIdsFromRefferals(referrals=[]){
+        let ids =[]
+        let users = await User.find()
+        referrals.forEach(referral=>{
+            ids = [...ids,...users.filter(user=>user.referral_code === referral.trim()).map(e=>e._id)]
+        })
+        return ids
+    },
+    async getUserByEmail(email){
+        const user = await User.find()
+        return user[user.findIndex(el=>el.email === email)]
     }
 }
 
