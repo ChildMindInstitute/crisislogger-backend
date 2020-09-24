@@ -38,10 +38,10 @@ class TextService {
         const page_size = 8;
         const skip = (page - 1)* page_size;
         if (searchText.length){
-            return await Text.find({text: {'$regex': searchText, '$options': 'i'}, hide: 0, share: {$gte : 1}}).skip(skip).limit(page_size)
+            return await Text.find({text: {'$regex': searchText, '$options': 'i'}, approved: true, share: {$gte : 1}}).skip(skip).limit(page_size)
         }
         else {
-            return await Text.find({hide: 0, share: {$gte : 1}}).skip(skip).limit(page_size)
+            return await Text.find({ approved: true, share: {$gte : 1}}).skip(skip).limit(page_size)
         }
     }
 }

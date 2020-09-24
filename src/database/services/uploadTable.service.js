@@ -47,13 +47,13 @@ class UploadTableService {
         const page_size = 8;
         const skip = (page - 1)* page_size;
         if (searchText && searchText.length){
-            return await UploadTable.find({hide: 0, share: {$gte : 1}}).populate({
+            return await UploadTable.find({approved: true, share: {$gte : 1}}).populate({
                 path: 'transcripts',
                 match: {text: {$regex: searchText}}
             }).skip(skip).limit(page_size)
         }
         else {
-            return await UploadTable.find({hide: 0, share: {$gte : 1}}).populate('transcripts').skip(skip).limit(page_size)
+            return await UploadTable.find({approved: true, share: {$gte : 1}}).populate('transcripts').skip(skip).limit(page_size)
         }
     }
 }
