@@ -231,49 +231,42 @@ export const downloadCsvData = async (req,res)=>{
             }
             return false
         }
-        function renderVideo(object){
-            if(isVideo(object)){
-                return renderStatus(object)
-            }else{
-                return ""
+        function getMediaType (m){
+            if(isVideo(m)){
+                return "Video Transcript"
+            }else if(isAudio(m)){
+                return  "Audio Transcript"
+            }else {
+                return "Text"
             }
         }
-        function renderAudio(object){
-            if(isAudio(object)){
-                return renderStatus(object)
+        function getTranscriptOrText(m){
+            if(isVideo(m) || isAudio(m)){
+                if(m.transcripts){
+                    return m.transcripts.text
+                }
             }else{
-                return ""
+                return m.text
+            }
+            return ""
+        }
+        function getFileName(m){
+            if(isVideo(m) || isAudio(m)){
+                return  m.name
+            }else{
+                return m._id
             }
         }
-        function renderText(object){
-            if(isText(object)){
-                return renderStatus(object)
-            }else{
-                return ""
-            }
-        }
-        function renderStatus(object){
-            let str=""
-            if(!object.hide && object.approved){
-                str +="1 "
-            }else{
-                str +="0 "
-            }
-            
-            if(!object.hide && !object.approved){
-                str +="1 "
-            }else{
-                str += "0 "
-            }
-            str +="("+object.share+")"
-            return str
-        }
-    
     try{
         let uploads = await UploadService.getUploadsWithFilter({where_from:req.query.domain})
         let texts = await TextDBService.getTextWithFilter({where_from:req.query.domain})
         let combineData = [...uploads,...texts]
-        let copyData = combineData.filter((e)=>e.hide==false && e.approved == true).map(m=>({Date:m.created_at,Video:renderVideo(m),Audio:renderAudio(m),Text:renderText(m)}))
+        let copyData = combineData.filter((e)=>e.hide==false && e.approved == true).map(m=>({
+            "Media Type":getMediaType(m),
+            "Content":getTranscriptOrText(m),
+            "Submission Date":new Date(m.created_at).toLocaleDateString(),
+            "File name":getFileName(m),
+            }))
         const fields = [
             {
             label:"Date",

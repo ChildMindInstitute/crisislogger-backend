@@ -31,7 +31,9 @@ router.post('/removeRecords' ,checkToken,  handlers.removeRecordsHandler)
 router.post('/questionnaire', handlers.saveUserQuestionnaire);
 router.get('/getAllRecords',[checkToken,checkAdmin],handlers.getAllUsersRecords)
 router.get('/upload/:id',[checkToken,checkAdmin],handlers.getUploadId)
+router.get('/uploads/',[checkToken,checkAdmin],handlers.getUploadsByIds)
 router.get('/text/:id',[checkToken,checkAdmin],handlers.getTextById)
+router.get('/texts/',[checkToken,checkAdmin],handlers.getTextByIds)
 router.put('/changeApproveStatus/:id',[checkToken,checkAdmin],handlers.updateApproveStatus)
 router.put('/changePublishStatus/:id',[checkToken,checkAdmin],handlers.updatePublishStatus)
 

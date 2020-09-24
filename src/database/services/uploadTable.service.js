@@ -15,7 +15,6 @@ class UploadTableService {
     
     async getUploadById(id){
         return await UploadTable.findOne({_id:id}).populate({path:'transcripts'}).populate({path:'user'})
-        
     }
     async updateApproveStatus(id,status){
         return await UploadTable.findOneAndUpdate({_id:id},{approved:!status},{new:true}).populate({path:'transcripts'})
@@ -37,6 +36,9 @@ class UploadTableService {
     }
     async getUploadsWithFilter(filter){
         return await UploadTable.find(filter)
+    }
+    async getUploadsByIds(ids){
+        return await UploadTable.find({_id:{$in:ids}}).populate({path:'transcripts'}).populate({path:'user'})
     }
     async storeTranscripts(transcript, upload_id) {
        return await UploadTable.findOneAndUpdate({ _id: upload_id }, { transcripts: transcript, status: 'finished' })

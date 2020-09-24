@@ -10,6 +10,9 @@ class TextService {
     async getTextWithId(id){
         return await Text.findOne({_id:id}).populate({path:'transcripts'}).populate({path:'user_id'})
     }
+    async getTextsWithId(ids){
+        return await Text.find({_id:{$in:ids}}).populate({path:'transcripts'}).populate({path:'user_id'})
+    }
     async updateApproveStatus(id,status){
         return await Text.findOneAndUpdate({_id:id},{approved:!status},{new:true}).populate({path:'transcripts'})
         

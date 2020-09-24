@@ -344,15 +344,33 @@ export const getUploadId = async(req,res)=>{
         return res.status(200).json({message: err})
     }
 }
+export const getUploadsByIds = async(req,res)=>{
+    try {
+        let ids = req.query.ids.split(",")
+        let result = await uploadService.getUploadsByIds(ids)
+        if(result){
+            for (let index = 0; index<result.length;index++){
+                if(result[index].user){
+                    result[index].user ={
+                         _id:result[index].user._id,name:result[index].user.name,email:result[index].user.email
+                    }
+                }
+            }
+            return res.status(200).json({data:result})
+        }
+        return res.status(401).json({message:"Not found"})
+    } catch(err) {
+        return res.status(200).json({message: err})
+    }
+}
 export const getTextById = async(req,res)=>{
     try {
         let id = req.params.id
         let result = await textModelService.getTextWithId(id)
-        
+
         if(result){
             if(result.user_id){
                 result=result.toObject()
-                
                 result["user"]={_id:result.user_id._id,name:result.user_id.name,email:result.user_id.email}
                 delete result.user_id
             }
@@ -363,7 +381,25 @@ export const getTextById = async(req,res)=>{
         return res.status(200).json({message: err})
     }
 }
-
+export const getTextByIds = async(req,res)=>{
+    try {
+        let ids = req.query.ids.split(",")
+        let result = await textModelService.getTextsWithId(ids)
+        if(result){
+            for (let index = 0; index<result.length;index++){
+                if(result[index].user_id){
+                    result[index]["user_id"] ={
+                        _id:result[index].user_id._id,name:result[index].user_id.name,email:result[index].user_id.email
+                    }
+                }
+            }
+            return res.status(200).json({data:result})
+        }
+        return res.status(401).json({message:"Not found"})
+    } catch(err) {
+        return res.status(200).json({message: err})
+    }
+}
 export const updateApproveStatus = async(req,res)=>{
     try {
         let found = false
@@ -531,10 +567,19 @@ export const getAllUsersRecords = async(req,res)=>{
         combineData.sort(function(a,b){
             let date1 = new Date(a.created_at)
             let date2 = new Date(b.created_at)
-            return date1 - date2
-        })    
+            return date2 - date1
+        })
+        let dataByDate = {}
+        combineData.forEach(el=>{
+            let date = new Date(el.created_at).toLocaleDateString()
+            if(dataByDate[date] === undefined){
+                dataByDate[date] = [el]
+            }else {
+                dataByDate[date] =[...dataByDate[date],el]
+            }
+        })
         return res.status(200).json({
-            records:combineData,
+            records:Object.values(dataByDate),
             filter
         })
     } catch(err) {
