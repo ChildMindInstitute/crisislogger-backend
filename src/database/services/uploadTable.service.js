@@ -43,17 +43,17 @@ class UploadTableService {
     async storeTranscripts(transcript, upload_id) {
        return await UploadTable.findOneAndUpdate({ _id: upload_id }, { transcripts: transcript, status: 'finished' })
     }
-    async paginate(page, searchText) {
+    async paginate(page, searchText, domain) {
         const page_size = 8;
         const skip = (page - 1)* page_size;
         if (searchText && searchText.length){
-            return await UploadTable.find({approved: true, share: {$gte : 1}}).populate({
+            return await UploadTable.find({approved: true, where_from: domain, share: {$gte : 1}}).populate({
                 path: 'transcripts',
                 match: {text: {$regex: searchText}}
             }).skip(skip).limit(page_size)
         }
         else {
-            return await UploadTable.find({approved: true, share: {$gte : 1}}).populate('transcripts').skip(skip).limit(page_size)
+            return await UploadTable.find({approved: true, where_from: domain, share: {$gte : 1}}).populate('transcripts').skip(skip).limit(page_size)
         }
     }
 }

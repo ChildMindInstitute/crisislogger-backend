@@ -33,15 +33,15 @@ class TextService {
         return res.filter(el=>el.text.includes(text))
         
     }
-    async paginate(page, searchText)
+    async paginate(page, searchText, domain)
     {
         const page_size = 8;
         const skip = (page - 1)* page_size;
         if (searchText.length){
-            return await Text.find({text: {'$regex': searchText, '$options': 'i'}, approved: true, share: {$gte : 1}}).skip(skip).limit(page_size)
+            return await Text.find({text: {'$regex': searchText, '$options': 'i'}, where_from: domain, approved: true, share: {$gte : 1}}).skip(skip).limit(page_size)
         }
         else {
-            return await Text.find({ approved: true, share: {$gte : 1}}).skip(skip).limit(page_size)
+            return await Text.find({ approved: true, where_from: domain, share: {$gte : 1}}).skip(skip).limit(page_size)
         }
     }
 }

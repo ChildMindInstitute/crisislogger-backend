@@ -203,8 +203,8 @@ export const getGalleryData = async (req, res) => {
     try {
         let page = parseInt(req.query.page);
         let searchTxt = req.query.searchTxt;
-        let uploads = await  UploadService.paginate(page, searchTxt)
-        let texts = await  TextDBService.paginate(page, searchTxt);
+        let uploads = await  UploadService.paginate(page, searchTxt, req.query.domain)
+        let texts = await  TextDBService.paginate(page, searchTxt, req.query.domain);
         uploads = uploads.concat(texts);
         return  res.json({ uploads: uploads })
     } catch(err) {
