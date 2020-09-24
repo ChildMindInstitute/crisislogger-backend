@@ -214,22 +214,16 @@ export const getGalleryData = async (req, res) => {
 }
 export const downloadCsvData = async (req,res)=>{
         function isVideo(record){
-            if(record.name != undefined && (record.name.split(".")[1] === 'webm' || record.name.split(".")[1] === 'mkv' || record.name.split(".")[1] === 'mp4')){
-                return true
-            }
-            return false
+            return record.name !== undefined && (record.name.split(".")[1] === 'webm' || record.name.split(".")[1] === 'mkv' || record.name.split(".")[1] === 'mp4');
+
         }
         function isAudio(record){
-            if(record.name != undefined && (record.name.split(".")[1] === 'wav')){
-                return true
-            }
-            return false
+            return record.name !== undefined && (record.name.split(".")[1] === 'wav');
+
         }
         function isText(record){
-            if(record.text != undefined){
-                return true
-            }
-            return false
+            return record.text !== undefined;
+
         }
         function getMediaType (m){
             if(isVideo(m)){
@@ -261,12 +255,13 @@ export const downloadCsvData = async (req,res)=>{
         let uploads = await UploadService.getUploadsWithFilter({where_from:req.query.domain})
         let texts = await TextDBService.getTextWithFilter({where_from:req.query.domain})
         let combineData = [...uploads,...texts]
-        let copyData = combineData.filter((e)=>e.hide==false && e.approved == true).map(m=>({
+        let copyData = combineData.filter((e)=>e.share && e.approved ).map(m=>({
             "Media Type":getMediaType(m),
             "Content":getTranscriptOrText(m),
             "Submission Date":new Date(m.created_at).toLocaleDateString(),
             "File name":getFileName(m),
             }))
+        console.log(copyData)
         const fields = [
             {
             label:"Date",
