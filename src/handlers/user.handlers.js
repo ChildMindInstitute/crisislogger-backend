@@ -17,7 +17,7 @@ const questionnaryService = new QuestionnaireService()
 export const userSignInHandler = async (req, res) => {
     try {
         let body = req.body
-        let userObject = await UserService.login(body.email, req.headers("referral_from"))
+        let userObject = await UserService.login(body.email, req.headers["referral_from"])
         if (userObject === null)
         {
             return res.status(401).json({message : "User doesn't exist or not authorized to login here"});
@@ -46,9 +46,9 @@ export const userSignUpHandler = async (req, res) => {
     res.set("Access-Control-Allow-Origin", "*");
     try {
         let body = req.body
-        body.host = req.headers("referral_from")
+        body.host = req.headers["referral_from"]
         body.token = await JWT.sign({role: body.role, email: body.email, host:body.host}, process.env.SECRET_KEY)
-        let userObject = await UserService.login(body.email, req.headers("referral_from"))
+        let userObject = await UserService.login(body.email, req.headers["referral_from"])
         if (userObject !== null)
         {
             return res.status(400).json({message : "Email address already exist"});
