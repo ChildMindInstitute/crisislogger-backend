@@ -17,8 +17,7 @@ const questionnaryService = new QuestionnaireService()
 export const userSignInHandler = async (req, res) => {
     try {
         let body = req.body
-        console.log(req.get("host"))
-        let userObject = await UserService.login(body.email,req.get("host"))
+        let userObject = await UserService.login(body.email, req.headers("referral_from"))
         if (userObject === null)
         {
             return res.status(401).json({message : "User doesn't exist or not authorized to login here"});
@@ -47,9 +46,9 @@ export const userSignUpHandler = async (req, res) => {
     res.set("Access-Control-Allow-Origin", "*");
     try {
         let body = req.body
-        body.host = req.get("host")
+        body.host = req.headers("referral_from")
         body.token = await JWT.sign({role: body.role, email: body.email, host:body.host}, process.env.SECRET_KEY)
-        let userObject = await UserService.login(body.email, req.get("host"))
+        let userObject = await UserService.login(body.email, req.headers("referral_from"))
         if (userObject !== null)
         {
             return res.status(400).json({message : "Email address already exist"});
@@ -331,7 +330,6 @@ export const closeMyAccount = async (req, res) => {
 export const getUploadId = async(req,res)=>{
     try {
         let id = req.params.id
-        console.log(id)
         let result = await uploadService.getUploadById(id)
         if(result){
             if(result.user){
@@ -409,11 +407,11 @@ export const updateApproveStatus = async(req,res)=>{
             result = await textModelService.getTextWithId(id)
             if(result){
                 found =true
-                result = await textModelService.updateApproveStatus(id,result.approved)
+                result = await textModelService.updateApproveStatus(id, result.approved)
             }
         }else{
             found = true
-            result = await uploadService.updateApproveStatus(id,result.approved)
+            result = await uploadService.updateApproveStatus(id, result.approved)
             // update the upload
         }
         if(result){
@@ -426,16 +424,11 @@ export const updateApproveStatus = async(req,res)=>{
 }
 export const updatePublishStatus = async(req,res)=>{
     try {
-        let found = false
         let id = req.params.id
         let result = await uploadService.getUploadById(id)
         if(!result){
             result = await textModelService.getTextWithId(id)
-            if(result){
-                found =true
-            }
         }else{
-            found = true
             result = await uploadService.updatePublishStatus(id,result.published)
         }
         if(result){
@@ -455,11 +448,11 @@ export const getAllUsersRecords = async(req,res)=>{
         let idsExluded= []
         let referralIds = []
         let filter={}
-        if(refferalCode != undefined && refferalCode.length>0){
+        if(refferalCode !== undefined && refferalCode.length>0){
             referralIds = await UserService.getUserIdsFromRefferals(refferalCode.split(","))
             idsIncluded = [...idsIncluded,...referralIds]
         }
-        if(usersIncluded != undefined && usersIncluded.length>0){
+        if(usersIncluded !== undefined && usersIncluded.length>0){
 
             let ids  = await UserService.getUsersIdsLikeEmails(usersIncluded.split(","))
             idsIncluded = [...idsIncluded,...ids]
@@ -473,8 +466,8 @@ export const getAllUsersRecords = async(req,res)=>{
             }
         }
         
-        if(domain!=undefined){
-            if(filter["$and"] != undefined){
+        if(domain!==undefined){
+            if(filter["$and"] !== undefined){
                 filter["$and"] =[
                     ...filter["$and"],
                     {where_from:domain}
@@ -485,10 +478,10 @@ export const getAllUsersRecords = async(req,res)=>{
                 ]
             }
         }
-        if(usersExcluded != undefined && usersExcluded.length>0){
+        if(usersExcluded !== undefined && usersExcluded.length>0){
             idsExluded = await UserService.getUsersIdsLikeEmails(usersExcluded.split(","))
             if(idsExluded.length>0){
-                if(filter["$and"] != undefined){
+                if(filter["$and"] !== undefined){
                     filter["$and"]=[
                         ...filter["$and"],
                         {user_id:{$nin:idsExluded}}
@@ -501,8 +494,8 @@ export const getAllUsersRecords = async(req,res)=>{
             }
             
         }
-        if(dateStart !=undefined && dateEnd!=undefined){
-            if(filter["$and"]!=undefined){
+        if(dateStart !==undefined && dateEnd !== undefined){
+            if(filter["$and"] !== undefined){
                 filter["$and"]=[
                     ...filter["$and"],
                     {created_at:{
@@ -518,8 +511,8 @@ export const getAllUsersRecords = async(req,res)=>{
                     }}
                 ]
             }
-        }else if(dateStart !=undefined){
-            if(filter["$and"]!=undefined){
+        }else if(dateStart !== undefined){
+            if(filter["$and"] !== undefined){
                 filter["$and"]=[
                     ...filter["$and"],
                     {created_at:{
@@ -533,8 +526,8 @@ export const getAllUsersRecords = async(req,res)=>{
                     }}
                 ]
             }
-        }else if(dateEnd !=undefined){
-            if(filter["$and"]!=undefined){
+        }else if(dateEnd !== undefined){
+            if(filter["$and"]!== undefined){
                 filter["$and"]=[
                     ...filter["$and"],
                     {created_at:{
@@ -553,7 +546,7 @@ export const getAllUsersRecords = async(req,res)=>{
         textIdsToFilter =[ ... await (await uploadService.getUploadsContainingText(text)).map(el=>el._id)]
         textIdsToFilter =[...textIdsToFilter, ...await (await textModelService.findTextUploadWithText(searchText)).map(el=>el._id)]
         if(textIdsToFilter.length>0){
-            if(filter["$and"] !=undefined){
+            if(filter["$and"] !== undefined){
                 filter["$and"]=[...filter["$and"],{_id:{"$in":textIdsToFilter}}]
             }else{
                 filter["$and"]=[{_id:{"$in":textIdsToFilter}}]
