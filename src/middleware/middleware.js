@@ -1,8 +1,8 @@
 import JWT from 'jsonwebtoken';
 import {ADMIN_ROLE} from '../constants'
 const  checkToken = (req, res, next) => {
-    console.log("Checking the token")
     let token = req.headers['x-access-token'] || req.headers['authorization']; // Express headers are auto converted to lowercase
+    let where_from = req.headers.origin.split('//')[1];
     if (token.startsWith('Bearer ')) {
         // Remove Bearer from string
         token = token.slice(7, token.length);
@@ -15,7 +15,7 @@ const  checkToken = (req, res, next) => {
                     message: 'Token is not valid'
                 });
             } else {
-                if(decoded.host === req.get("host")){
+                if(decoded.host === where_from){
                     req.decoded = decoded;
                     next();
                 }else {

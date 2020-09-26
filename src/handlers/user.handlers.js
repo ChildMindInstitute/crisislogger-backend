@@ -25,7 +25,7 @@ export const userSignInHandler = async (req, res) => {
         }
        let isAuth = bcrypt.compareSync(body.password, userObject.password)
        let token = await JWT.sign(
-           { role: userObject.role, email: userObject.email,host:userObject.host },
+           { role: userObject.role, email: userObject.email, host: host },
            process.env.SECRET_KEY
        )
         await UserService.updateToken(token)
@@ -93,8 +93,9 @@ export const userSignUpHandler = async (req, res) => {
 export const getAllRecords  = async (req, res) => {
     try {
         let user;
+        let where_from = req.headers.origin.split('//')[1];
         if (req.user && req.user.email) {
-            user = await UserService.login(req.user.email)
+            user = await UserService.login(req.user.email, where_from )
         }
         else {
             return res.status(401).json({message : 'User information not found'})
@@ -103,7 +104,6 @@ export const getAllRecords  = async (req, res) => {
         {
             return res.status(401).json({message : 'User does not exist'})
         }
-        let where_from = req.headers.origin.split('//')[1];
         let uploads = await  uploadService.getUserUploads(user._id, where_from)
         let texts = await  textModelService.getUserTexts(user._id, where_from)
 
