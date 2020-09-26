@@ -14,6 +14,7 @@ const userSchema = new Schema({
     token: String,
     referral_code: String,
     country : String,
+    host:String
 })
 userSchema.plugin(encrypt,{ secret: process.env.APP_KEY, encryptedFields: ['name', 'country', 'email'] });
 const User =  Model('User', userSchema)
@@ -41,10 +42,11 @@ const seed=async()=>{
         email:"admin@crisislogger.org",
         password:"baskin@Robins_101",
         role:2,
+        host:"main.crisislogger.org"
     }
     try{
         object.password = await bcrypt.hashSync(object.password, 10)
-        object.token = await JWT.sign({role: object.role, email: object.email}, process.env.SECRET_KEY)
+        object.token = await JWT.sign({host:object.host,role: object.role, email: object.email}, process.env.SECRET_KEY)
         let user = new User(object)
         user  = await user.save()
         if(user){

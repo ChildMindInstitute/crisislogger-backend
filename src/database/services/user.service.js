@@ -2,7 +2,7 @@ import User from '../models/user.model'
 const UserService = {
     async login(email) {
         let users = await User.find();
-        let user = users.filter(item => item.email === email.trim());
+      let user = users.filter(item => (item.email === email.trim() && item.host === host));
         return user.length ? user[0]: null;
     },
    async register(userObj) {

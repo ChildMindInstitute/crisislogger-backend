@@ -15,8 +15,15 @@ const  checkToken = (req, res, next) => {
                     message: 'Token is not valid'
                 });
             } else {
-                req.decoded = decoded;
-                next();
+                if(decoded.host === req.get("host")){
+                    req.decoded = decoded;
+                    next();
+                }else {
+                    return res.json({
+                        success: false,
+                        message: 'Not Authorized'
+                    });
+                }
             }
         });
     } else {

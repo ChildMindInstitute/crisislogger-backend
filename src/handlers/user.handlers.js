@@ -17,15 +17,15 @@ const questionnaryService = new QuestionnaireService()
 export const userSignInHandler = async (req, res) => {
     try {
         let body = req.body
-        let userObject = await UserService.login(body.email)
-        console.log(userObject)
+        console.log(req.get("host"))
+        let userObject = await UserService.login(body.email,req.get("host"))
         if (userObject === null)
         {
-            return res.status(401).json({message : "User doesn't exist"});
+            return res.status(401).json({message : "User doesn't exist or not authorized to login here"});
         }
        let isAuth = bcrypt.compareSync(body.password, userObject.password)
        let token = await JWT.sign(
-           { role: userObject.role, email: userObject.email },
+           { role: userObject.role, email: userObject.email,host:userObject.host },
            process.env.SECRET_KEY
        )
         await UserService.updateToken(token)
@@ -47,9 +47,9 @@ export const userSignUpHandler = async (req, res) => {
     res.set("Access-Control-Allow-Origin", "*");
     try {
         let body = req.body
-        body.password = await bcrypt.hashSync(body.password, 10)
-        body.token = await JWT.sign({role: body.role, email: body.email}, process.env.SECRET_KEY)
-        let userObject = await UserService.login(body.email)
+        body.host = req.get("host")
+        body.token = await JWT.sign({role: body.role, email: body.email, host:body.host}, process.env.SECRET_KEY)
+        let userObject = await UserService.login(body.email, req.get("host"))
         if (userObject !== null)
         {
             return res.status(400).json({message : "Email address already exist"});
