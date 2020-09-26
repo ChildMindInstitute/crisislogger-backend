@@ -18,30 +18,30 @@ const UserService = {
     updateToken(userId, token) {
         User.findOneAndUpdate({ _id: userId }, { token })
     },
-    async getUserIdByEmail(email) {
+    async getUserIdByEmail(email, host) {
         let users = await User.find();
-        let user = users.filter(item => item.email === email.trim());
+        let user = users.filter(item => item.email === email.trim() && item.host === host);
         return user.length ? user[0]: null;
     },
-    async getUsersIdsLikeEmails(emails=[]){
+    async getUsersIdsLikeEmails(emails=[], host){
         let ids =[]
         let users = await User.find()
         emails.forEach(email=>{
-            ids = [...ids,...users.filter(user=>user.email.includes(email.trim())).map(e=>e._id)]
+            ids = [...ids,...users.filter(user=>user.email.includes(email.trim()) && user.host === host).map(e=>e._id)]
         })
         return ids
     },
-    async getUserIdsFromRefferals(referrals=[]){
+    async getUserIdsFromRefferals(referrals=[], host){
         let ids =[]
         let users = await User.find()
         referrals.forEach(referral=>{
-            ids = [...ids,...users.filter(user=>user.referral_code === referral.trim()).map(e=>e._id)]
+            ids = [...ids,...users.filter(user=>user.referral_code === referral.trim() && user.host === host).map(e=>e._id)]
         })
         return ids
     },
-    async getUserByEmail(email){
+    async getUserByEmail(email, host){
         const user = await User.find()
-        return user[user.findIndex(el=>el.email === email)]
+        return user[user.findIndex(el=>el.email === email && el.host === host)]
     }
 }
 

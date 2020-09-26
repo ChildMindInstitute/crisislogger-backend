@@ -12,6 +12,7 @@ const userSchema = new Schema({
     token: String,
     referral_code: String,
     country : String,
+    host: String
 })
 userSchema.plugin(encrypt,{ secret: process.env.APP_KEY, encryptedFields: ['name', 'country', 'email'] });
 const User =  Model('User', userSchema)

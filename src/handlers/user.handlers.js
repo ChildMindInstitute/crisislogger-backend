@@ -116,12 +116,13 @@ export const changeRecordStatus  = async (req, res) => {
     try {
         let user;
         let body = req.body
+        let where_from = req.headers.origin.split('//')[1];
         if (!req.user || ! req.user.email)
         {
             return res.status(401).json({message : 'User information not found'})
         }
         if (req.user && req.user.email) {
-            user = await UserService.login(req.user.email)
+            user = await UserService.login(req.user.email, where_from)
         }
         if (!user)
         {
@@ -183,7 +184,8 @@ export const removeRecordsHandler = async (req, res) => {
         {
             return res.status(401).json({message : 'User information not found'})
         }
-        let user = await UserService.login(req.user.email);
+        let where_from = req.headers.origin.split('//')[1];
+        let user = await UserService.login(req.user.email, where_from);
         if (!user)
         {
             return res.status(401).json({message : 'User does not exist'})
@@ -204,18 +206,19 @@ export const userUpdateHandler = async (req, res) => {
     try {
         if (req.user && req.user.email)
         {
-            let user = await UserService.getUserIdByEmail(req.user.email)
+            let where_from = req.headers.origin.split('//')[1];
+            let user = await UserService.getUserIdByEmail(req.user.email, where_from)
 
             if (!user)
             {
                 return res.status(401).json({message : 'Unauthorized'})
             }
             let token = await JWT.sign(
-                { role: user.role, email: req.body.email },
+                { role: user.role, email: req.body.email, host: where_from },
                 process.env.SECRET_KEY
             )
             await UserService.delete(user._id)
-            let userObject = await UserService.login(req.body.email)
+            let userObject = await UserService.login(req.body.email, where_from)
             if (userObject !== null)
             {
                 return res.status(400).json({message : "Email address already exist"});
@@ -228,7 +231,8 @@ export const userUpdateHandler = async (req, res) => {
                 referral_code: user.referral_code,
                 _id: user._id,
                 password: user.password,
-                country: user.country
+                country: user.country,
+                host: where_from
             }
             let createdUser = await UserService.register(userObj)
             return  res.status(200).json({result: createdUser})
@@ -246,7 +250,8 @@ export const getAccount = async (req, res) => {
     try {
         if (req.user && req.user.email)
         {
-            let user = await UserService.getUserIdByEmail(req.user.email)
+            let where_from = req.headers.origin.split('//')[1];
+            let user = await UserService.getUserIdByEmail(req.user.email, where_from)
             if (user)
             {
                 return  res.status(200).json({result : user})
@@ -269,11 +274,12 @@ export  const changePassword = async (req, res) => {
         if (req.user && req.user.email)
         {
             let body = req.body;
-            let user = await UserService.getUserIdByEmail(req.user.email)
+            let where_from = req.headers.origin.split('//')[1];
+            let user = await UserService.getUserIdByEmail(req.user.email, where_from)
             let isAuth = bcrypt.compareSync(body.old_password, user.password)
             if(isAuth) {
                 body.new_password = await bcrypt.hashSync(body.new_password, 10)
-                body.token = await JWT.sign({role: user.role, email: user.email}, process.env.SECRET_KEY)
+                body.token = await JWT.sign({role: user.role, email: user.email, host: where_from}, process.env.SECRET_KEY)
                 const obj =  {
                     token:  body.token,
                     password: body.new_password
@@ -297,7 +303,8 @@ export const saveUserQuestionnaire = async (req, res) => {
     try {
         if (req.user && req.user.email)
         {
-            const user = await UserService.getUserIdByEmail(req.user.email)
+            let where_from = req.headers.origin.split('//')[1];
+            const user = await UserService.getUserIdByEmail(req.user.email, where_from)
             const userId = user._id
             await questionnaryService.createDBObject(userId, req.body.questionnaireData)
         }
@@ -313,7 +320,8 @@ export const closeMyAccount = async (req, res) => {
     try {
         if (req.user && req.user.email)
         {
-            const user = await UserService.getUserIdByEmail(req.user.email)
+            let where_from = req.headers.origin.split('//')[1];
+            const user = await UserService.getUserIdByEmail(req.user.email, where_from)
             if (!user)
             {
                 return res.status(401).json({message : 'Unauthorized'})
@@ -444,18 +452,19 @@ export const updatePublishStatus = async(req,res)=>{
 export const getAllUsersRecords = async(req,res)=>{
 
     try {
+        let where_from = req.headers.origin.split('//')[1];
         let {usersIncluded,usersExcluded,dateStart,dateEnd,searchText,refferalCode,domain} = req.query
         let idsIncluded =[]
         let idsExluded= []
         let referralIds = []
         let filter={}
         if(refferalCode !== undefined && refferalCode.length>0){
-            referralIds = await UserService.getUserIdsFromRefferals(refferalCode.split(","))
+            referralIds = await UserService.getUserIdsFromRefferals(refferalCode.split(","), where_from)
             idsIncluded = [...idsIncluded,...referralIds]
         }
         if(usersIncluded !== undefined && usersIncluded.length>0){
 
-            let ids  = await UserService.getUsersIdsLikeEmails(usersIncluded.split(","))
+            let ids  = await UserService.getUsersIdsLikeEmails(usersIncluded.split(","), where_from)
             idsIncluded = [...idsIncluded,...ids]
         }
         
@@ -471,16 +480,16 @@ export const getAllUsersRecords = async(req,res)=>{
             if(filter["$and"] !== undefined){
                 filter["$and"] =[
                     ...filter["$and"],
-                    {where_from:domain}
+                    {where_from: where_from}
                 ]
             }else{
                 filter["$and"]=[
-                    {where_from:domain}
+                    {where_from: where_from}
                 ]
             }
         }
         if(usersExcluded !== undefined && usersExcluded.length>0){
-            idsExluded = await UserService.getUsersIdsLikeEmails(usersExcluded.split(","))
+            idsExluded = await UserService.getUsersIdsLikeEmails(usersExcluded.split(","), where_from)
             if(idsExluded.length>0){
                 if(filter["$and"] !== undefined){
                     filter["$and"]=[
