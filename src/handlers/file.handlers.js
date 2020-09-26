@@ -203,8 +203,9 @@ export const getGalleryData = async (req, res) => {
     try {
         let page = parseInt(req.query.page);
         let searchTxt = req.query.searchTxt;
-        let uploads = await  UploadService.paginate(page, searchTxt, req.query.domain)
-        let texts = await  TextDBService.paginate(page, searchTxt, req.query.domain);
+        let where_from = req.headers.origin.split('//')[1];
+        let uploads = await  UploadService.paginate(page, searchTxt, where_from)
+        let texts = await  TextDBService.paginate(page, searchTxt, where_from);
         uploads = uploads.concat(texts);
         return  res.json({ uploads: uploads })
     } catch(err) {
@@ -252,8 +253,9 @@ export const downloadCsvData = async (req,res)=>{
             }
         }
     try{
-        let uploads = await UploadService.getUploadsWithFilter({where_from:req.query.domain})
-        let texts = await TextDBService.getTextWithFilter({where_from:req.query.domain})
+        let where_from = req.headers.origin.split('//')[1];
+        let uploads = await UploadService.getUploadsWithFilter({where_from: where_from})
+        let texts = await TextDBService.getTextWithFilter({where_from: where_from})
         let combineData = [...uploads,...texts]
         let copyData = combineData.filter((e)=>e.share && e.approved ).map(m=>({
             "Media Type":getMediaType(m),
@@ -261,7 +263,6 @@ export const downloadCsvData = async (req,res)=>{
             "Submission Date":new Date(m.created_at).toLocaleDateString(),
             "File name":getFileName(m),
             }))
-        console.log(copyData)
         const fields = [
             {
             label:"Date",
