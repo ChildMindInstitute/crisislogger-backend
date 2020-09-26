@@ -48,6 +48,7 @@ export const userSignUpHandler = async (req, res) => {
     try {
         let body = req.body
         body.host = req.headers.origin.split('//')[1]
+        body.password = await bcrypt.hashSync(body.password, 10)
         body.token = await JWT.sign({role: body.role, email: body.email, host:body.host}, process.env.SECRET_KEY)
         let userObject = await UserService.login(body.email, body.host)
         if (userObject !== null)
