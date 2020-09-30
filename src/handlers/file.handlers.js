@@ -16,7 +16,7 @@ import {gcs} from '../../config'
 import {Parser} from 'json2csv'
 
 export const uploadFileHandle = async (req, res) => {
-
+  let where_from = req.headers.origin.split('//')[1];
   let token = req.headers['x-access-token'] || req.headers['authorization']; // Express headers are auto converted to lowercase
   if (token.startsWith('Bearer ')) {
     // Remove Bearer from string
@@ -31,7 +31,7 @@ export const uploadFileHandle = async (req, res) => {
     });
   }
   if (req.decoded) {
-    user = await UserService.login(req.decoded.email);
+    user = await UserService.login(req.decoded.email, where_from);
     if (!user) {
       return res.status(401).json({message: 'User does not exist'})
     }
