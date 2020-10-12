@@ -29,6 +29,9 @@ export default async function  migrateDb  (){
         upload['user_id'] = user._id;
         upload['sqlId'] = upload.id;
         upload['original_name']= upload.original_file_name;
+        upload['approved']= !upload.hide;
+        upload['published']= !upload.published;
+
         (new UploadTable(upload)).save().then(async upload=>{
           // [add transcriptions with userId]
           await addUploadTranscription(upload,user)
@@ -53,6 +56,8 @@ export default async function  migrateDb  (){
   // [add uploads were userId not defined]
   data['uploads'].filter(upload=>upload.user_id == undefined || upload.user_id == null).forEach(upload=>{
     upload['sqlId'] = upload.id;
+    upload['approved']= !upload.hide;
+    upload['published']= !upload.published;
     (new UploadTable(upload)).save().then(async upload=>{
       // [add transcriptions without userId]
       await addUploadTranscription(upload,null);
