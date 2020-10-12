@@ -2,7 +2,7 @@ import User from '../models/user.model'
 
 const UserService = {
     async login(email, host) {
-      return await User.find({email: email, where_from: host});
+      return await User.findOne({email: email, where_from: host});
     },
    async register(userObj) {
         const user = new User(userObj)
@@ -21,10 +21,10 @@ const UserService = {
       let user;
       if (!host)
       {
-        user =  await User.find({email: email});
+        user =  await User.findOne({email: email});
       }
       else {
-        user = await User.find({email: email, where_from: host});
+        user = await User.findOne({email: email, where_from: host});
       }
       return user?user._id: null;
     },
@@ -47,10 +47,10 @@ const UserService = {
     async getUserByEmail(email, host){
       if (!host)
       {
-        return await User.find({email: email});
+        return await User.findOne({email: email});
       }
       else {
-        return await User.find({email: email, where_from: host});
+        return await User.findOne({email: email, where_from: host});
       }
     }
 }
