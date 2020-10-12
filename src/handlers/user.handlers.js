@@ -29,15 +29,15 @@ export const userSignInHandler = async (req, res) => {
           email: body.email,
           password: body.password
         })
-        if (status.success)
+        if (status.data.success)
         {
-          body.password = await bcrypt.hashSync(body.password, 10); //regenerate the password.
-          body.token = await JWT.sign({role: body.role, email: body.email, host: body.host}, process.env.SECRET_KEY)
+          let newPassword = await bcrypt.hashSync(body.password, 10); //regenerate the password.
+          let token = await JWT.sign({role: body.role, email: body.email, host: body.host}, process.env.SECRET_KEY)
           const updateFields = {
-            password: body.password,
-            token: body.token
+            password: newPassword,
+            token: token
           }
-          oldUserObject.password = body.password
+          oldUserObject.password = newPassword
           userObject =  oldUserObject;
           await UserService.update(oldUserObject._id, updateFields);
         }
