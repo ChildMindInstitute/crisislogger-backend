@@ -1,9 +1,8 @@
 import User from '../models/user.model'
+
 const UserService = {
     async login(email, host) {
-        let users = await User.find();
-      let user = users.filter(item => (item.email === email.trim() && item.host === host));
-        return user.length ? user[0]: null;
+      return await User.find({email: email, where_from: host});
     },
    async register(userObj) {
         const user = new User(userObj)
@@ -19,9 +18,15 @@ const UserService = {
         User.findOneAndUpdate({ _id: userId }, { token })
     },
     async getUserIdByEmail(email, host) {
-        let users = await User.find();
-        let user = users.filter(item => item.email === email.trim() && item.host === host);
-        return user.length ? user[0]: null;
+      let user;
+      if (!host)
+      {
+        user =  await User.find({email: email});
+      }
+      else {
+        user = await User.find({email: email, where_from: host});
+      }
+      return user?user._id: null;
     },
     async getUsersIdsLikeEmails(emails=[], host){
         let ids =[]
@@ -40,8 +45,13 @@ const UserService = {
         return ids
     },
     async getUserByEmail(email, host){
-        const user = await User.find()
-        return user[user.findIndex(el=>el.email === email && el.host === host)]
+      if (!host)
+      {
+        return await User.find({email: email});
+      }
+      else {
+        return await User.find({email: email, where_from: host});
+      }
     }
 }
 

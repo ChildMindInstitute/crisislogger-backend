@@ -9,6 +9,7 @@ import UploadTable from "../database/models/uploadTable.model";
 import Text from "../database/models/text.model";
 import TranscriptionModel from "../database/models/transcription.model";
 import {text} from 'body-parser';
+import axios from 'axios';
 
 const uploadService = new UploadTableService()
 const textModelService = new TextService()
@@ -21,7 +22,31 @@ export const userSignInHandler = async (req, res) => {
     let host = req.headers.origin.split('//')[1];
     let userObject = await UserService.login(body.email, host)
     if (userObject === null) {
-      return res.status(401).json({message: "User doesn't exist or not authorized to login here"});
+      try {
+        const status = await axios.post(`${process.env.LEGACY_PHP_HOSTNAME}/api/temprary-auth`, {
+          email: body.email,
+          password: body.password
+        })
+        if (status.success)
+        {
+          let userObject = await UserService.getUserByEmail(body.email);
+          body.password = await bcrypt.hashSync(body.password, 10); //regenerate the password.
+          body.token = await JWT.sign({role: body.role, email: body.email, host: body.host}, process.env.SECRET_KEY)
+          const updateFields = {
+            password: body.password,
+            token: body.token
+          }
+          userObject.password = body.password
+          await UserService.update(userObject._id, updateFields);
+        }
+        else {
+          return res.status(401).json({message: "User doesn't exist or not authorized to login here"});
+        }
+      }
+      catch (error)
+      {
+        return res.status(401).json({message: "User doesn't exist or not authorized to login here"});
+      }
     }
     let isAuth = bcrypt.compareSync(body.password, userObject.password)
     let token = await JWT.sign(

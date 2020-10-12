@@ -1,5 +1,6 @@
 import JWT from 'jsonwebtoken';
 import {ADMIN_ROLE} from '../constants'
+
 const  checkToken = (req, res, next) => {
     let token = req.headers['x-access-token'] || req.headers['authorization']; // Express headers are auto converted to lowercase
     let where_from = req.headers.origin.split('//')[1];
