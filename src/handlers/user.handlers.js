@@ -21,7 +21,9 @@ export const userSignInHandler = async (req, res) => {
     let body = req.body
     let host = req.headers.origin.split('//')[1];
     let userObject = await UserService.login(body.email, host)
-    if (userObject === null) {
+    let oldUserObject = await UserService.getUserByEmail(body.email);
+
+    if (userObject === null && oldUserObject) {
       try {
         const status = await axios.post(`${process.env.LEGACY_PHP_HOSTNAME}/api/login`, {
           email: body.email,
@@ -29,15 +31,15 @@ export const userSignInHandler = async (req, res) => {
         })
         if (status.success)
         {
-          let userObject = await UserService.getUserByEmail(body.email);
           body.password = await bcrypt.hashSync(body.password, 10); //regenerate the password.
           body.token = await JWT.sign({role: body.role, email: body.email, host: body.host}, process.env.SECRET_KEY)
           const updateFields = {
             password: body.password,
             token: body.token
           }
-          userObject.password = body.password
-          await UserService.update(userObject._id, updateFields);
+          oldUserObject.password = body.password
+          userObject =  oldUserObject;
+          await UserService.update(oldUserObject._id, updateFields);
         }
         else {
           return res.status(401).json({message: "User doesn't exist or not authorized to login here"});
