@@ -23,7 +23,7 @@ export const userSignInHandler = async (req, res) => {
     let userObject = await UserService.login(body.email, host)
     if (userObject === null) {
       try {
-        const status = await axios.post(`${process.env.LEGACY_PHP_HOSTNAME}/api/temprary-auth`, {
+        const status = await axios.post(`${process.env.LEGACY_PHP_HOSTNAME}/api/login`, {
           email: body.email,
           password: body.password
         })
