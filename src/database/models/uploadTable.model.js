@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-import encrypt from "mongoose-encryption";
 
 let Schema = mongoose.Schema
 let Model = mongoose.model
@@ -40,6 +39,12 @@ const uploadTableSchema = new Schema({
     transcripts: {
         type: mongoose.Schema.Types.ObjectId, ref: 'Transcription'
     },
+    text:String,
+    original_file_name:String,
+    recorded_date:Date,
+    privacy_update_date:Date,
+    transcript_rate:Number,
+    sqlId:String,
 })
 const UploadTable = Model('uploads', uploadTableSchema)
 

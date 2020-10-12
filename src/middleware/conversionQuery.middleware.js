@@ -11,9 +11,7 @@ export default (req, res, next) => {
         }
     })
     .then((response) => {
-      console.log(response.data);
     }, (error) => {
-      console.log(error);
     });
   }, 1);
   next();

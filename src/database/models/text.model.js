@@ -20,7 +20,9 @@ const textSchema = new Schema({
         type:Boolean,
         default:false
     },
-    hide: { type: Boolean, default: true }
+    hide: { type: Boolean, default: true },
+    sqlId:String,
+    privacy_updated_date:String,
 })
 textSchema.plugin(encrypt,{ secret:  process.env.APP_KEY, encryptedFields: ['text'] });
 const Text = Model('Text', textSchema)

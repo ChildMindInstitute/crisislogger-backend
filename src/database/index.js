@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import migrateDb from "../../migrate";
 const option = {
     socketTimeoutMS: 30000,
     keepAlive: true,
@@ -16,6 +17,9 @@ db.on('error', err => {
 
 db.on('open', () => {
     console.log('Database success connection')
+    if(process.env.MIGRATE_DB === 1){
+        migrateDb();
+    }
 })
 
 export default db

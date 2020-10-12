@@ -12,8 +12,15 @@ const userSchema = new Schema({
     token: String,
     referral_code: String,
     country : String,
-    host: String
+    host: String,
+    remember_token:String,
+    updated_at:String,
+    openhumans_access_token:String,
+    openhumans_refresh_token:String,
+    openhumans_project_member_id:String,
+    state:String,
+    sqlId:String
 })
-userSchema.plugin(encrypt,{ secret: process.env.APP_KEY, encryptedFields: ['name', 'country', 'email'] });
+userSchema.plugin(encrypt,{ secret: process.env.APP_KEY, encryptedFields: ['name', 'country'] });
 const User =  Model('User', userSchema)
 export default User
