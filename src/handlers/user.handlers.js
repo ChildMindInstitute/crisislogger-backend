@@ -53,8 +53,8 @@ export const userSignInHandler = async (req, res) => {
       {role: userObject.role, email: userObject.email, host: host},
       process.env.SECRET_KEY
     )
-    await UserService.updateToken(token)
     userObject.token = token;
+    await UserService.updateToken(userObject._id, token)
     if (isAuth) {
       return res.status(200).json({user: userObject})
     } else {
