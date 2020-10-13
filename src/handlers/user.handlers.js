@@ -75,7 +75,7 @@ export const userSignUpHandler = async (req, res) => {
     let body = req.body
     body.where_from = req.headers.origin.split('//')[1]
     body.password = await bcrypt.hashSync(body.password, 10)
-    body.token = await JWT.sign({role: body.role, email: body.email, host: body.where_from}, process.env.SECRET_KEY)
+    body.token = await JWT.sign({role: 1, email: body.email, host: body.where_from}, process.env.SECRET_KEY)
     let userObject = await UserService.login(body.email, body.where_from)
     if (userObject !== null) {
       return res.status(400).json({message: "Email address already exist"});

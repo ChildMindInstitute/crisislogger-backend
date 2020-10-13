@@ -19,7 +19,8 @@ const userSchema = new Schema({
     openhumans_refresh_token:String,
     openhumans_project_member_id:String,
     state:String,
-    sqlId:String
+    sqlId:String,
+    user_type: String
 })
 userSchema.plugin(encrypt,{ secret: process.env.APP_KEY, encryptedFields: ['name', 'country'] });
 const User =  Model('User', userSchema)
