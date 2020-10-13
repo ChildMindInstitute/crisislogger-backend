@@ -20,9 +20,9 @@ const  checkToken = (req, res, next) => {
                     req.decoded = decoded;
                     next();
                 }else {
-                    return res.json({
+                    return res.status(401).json({
                         success: false,
-                        message: 'Not Authorized'
+                        message: 'User not authorized to see this page'
                     });
                 }
             }
@@ -38,9 +38,9 @@ const checkAdmin = (req,res,next)=>{
     if(req.decoded.role === ADMIN_ROLE){
         next()
     }else{
-        return res.json({
+        return res.status(401).json({
             success: false,
-            message: 'User not authorized'
+            message: 'User not authorized to see this page'
         });
     }
 }
