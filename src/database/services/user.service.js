@@ -2,7 +2,7 @@ import User from '../models/user.model'
 
 const UserService = {
     async login(email, host) {
-      return await User.findOne({email: email, where_from: host});
+      return User.findOne({email: email, where_from: host});
     },
    async register(userObj) {
         const user = new User(userObj)

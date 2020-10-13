@@ -12,7 +12,7 @@ const userSchema = new Schema({
     token: String,
     referral_code: String,
     country : String,
-    host: String,
+    where_from: String,
     remember_token:String,
     updated_at:String,
     openhumans_access_token:String,
