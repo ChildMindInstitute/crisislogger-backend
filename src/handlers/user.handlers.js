@@ -32,10 +32,11 @@ export const userSignInHandler = async (req, res) => {
         if (status.data.success)
         {
           let newPassword = await bcrypt.hashSync(body.password, 10); //regenerate the password.
-          let token = await JWT.sign({role: body.role, email: body.email, host: body.host}, process.env.SECRET_KEY)
+          let token = await JWT.sign({role: body.role, email: body.email, host: host}, process.env.SECRET_KEY)
           const updateFields = {
             password: newPassword,
-            token: token
+            token: token,
+            where_from: host
           }
           oldUserObject.password = newPassword
           userObject =  oldUserObject;
@@ -72,10 +73,10 @@ export const userSignUpHandler = async (req, res) => {
   res.set("Access-Control-Allow-Origin", "*");
   try {
     let body = req.body
-    body.host = req.headers.origin.split('//')[1]
+    body.where_from = req.headers.origin.split('//')[1]
     body.password = await bcrypt.hashSync(body.password, 10)
-    body.token = await JWT.sign({role: body.role, email: body.email, host: body.host}, process.env.SECRET_KEY)
-    let userObject = await UserService.login(body.email, body.host)
+    body.token = await JWT.sign({role: body.role, email: body.email, host: body.where_from}, process.env.SECRET_KEY)
+    let userObject = await UserService.login(body.email, body.where_from)
     if (userObject !== null) {
       return res.status(400).json({message: "Email address already exist"});
     }
