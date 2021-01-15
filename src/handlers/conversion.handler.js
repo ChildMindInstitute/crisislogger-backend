@@ -86,7 +86,7 @@ const createFile = (data) => {
             };
 
             const fileType = await FileType.fromFile(tempFile);
-            if (fileType.ext === 'mp4') {
+            if (fileType.ext !== 'mp4') {
                 convert(tempFile, resultFile, (err) => {
                     if (err) {
                         console.log(err);
