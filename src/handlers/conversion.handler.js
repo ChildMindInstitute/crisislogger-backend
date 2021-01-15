@@ -95,7 +95,7 @@ const createFile = (data) => {
                     let videoBuffer = fs.readFileSync(resultFile);
                     let videoData = videoBuffer.toString('base64');
                     result.videoFile = {
-                        type : 'audio/x-wav',
+                        type : 'video/x-msvideo',
                         data: videoData
                     };
                     fs.unlinkSync(tempFile);
