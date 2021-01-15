@@ -32,7 +32,7 @@ const convert = (input, output, callback) => {
                     console.log('conversion ended',  new Date().toISOString());
                     resolve(true)
                 }).on('error', function(err){
-                    reject(false)
+                    resolve(false)
             }).run();
         }
         else {
@@ -47,7 +47,7 @@ const convert = (input, output, callback) => {
                     console.log('conversion ended',  new Date().toISOString());
                     resolve(true)
                 }).on('error', function(err){
-                    reject(false)
+                    resolve(false)
             }).run();
         }
     })
