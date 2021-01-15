@@ -19,39 +19,38 @@ const TranscriptionService = new TranscriptionModelService()
  * @param {function} callback 
  */
 const convert = (input, output, callback) => {
-    if (output.indexOf('mp3') !== false)
-    {
-        ffmpeg(input)
-            .output(output)
-            .audioCodec('libfdk_aac')
-            .on('start', () => {
-                console.log('conversion started',  new Date().toISOString());
-            })
-            .on('end', () => {
-                console.log('conversion ended',  new Date().toISOString());
-                callback(null);
-            }).on('error', function(err){
-            console.log('error: ', err);
-            callback(err);
-        }).run();
-    }
-    else {
-        ffmpeg(input)
-            .output(output)
-            .audioCodec('libfdk_aac')
-            .videoCodec('libx264')
-            .on('start', () => {
-                console.log('conversion started',  new Date().toISOString());
-            })
-            .on('end', () => {
-                console.log('conversion ended',  new Date().toISOString());
-                callback(null);
-            }).on('error', function(err){
-            console.log('error: ', err);
-            callback(err);
-        }).run();
-    }
-
+    return new Promise((resolve, reject) => { 
+        if (output.indexOf('mp3') !== false)
+        {
+            ffmpeg(input)
+                .output(output)
+                .audioCodec('libfdk_aac')
+                .on('start', () => {
+                    console.log('conversion started',  new Date().toISOString());
+                })
+                .on('end', () => {
+                    console.log('conversion ended',  new Date().toISOString());
+                    resolve(true)
+                }).on('error', function(err){
+                    reject(false)
+            }).run();
+        }
+        else {
+            ffmpeg(input)
+                .output(output)
+                .audioCodec('libfdk_aac')
+                .videoCodec('libx264')
+                .on('start', () => {
+                    console.log('conversion started',  new Date().toISOString());
+                })
+                .on('end', () => {
+                    console.log('conversion ended',  new Date().toISOString());
+                    resolve(true)
+                }).on('error', function(err){
+                    reject(false)
+            }).run();
+        }
+    })
 }
 
 /**
@@ -87,11 +86,9 @@ const createFile = (data) => {
 
             const fileType = await FileType.fromFile(tempFile);
             if (fileType.ext !== 'mp4') {
-                convert(tempFile, resultFile, (err) => {
-                    if (err) {
-                        console.log(err);
-                        reject(err);
-                    }
+               const converted =  await convert(tempFile, resultFile)
+               if (converted)
+               {
                     let videoBuffer = fs.readFileSync(resultFile);
                     let videoData = videoBuffer.toString('base64');
                     result.videoFile = {
@@ -100,7 +97,18 @@ const createFile = (data) => {
                     };
                     fs.unlinkSync(tempFile);
                     resolve(result);
-                });
+               }
+               else {
+                    let videoBuffer = fs.readFileSync(resultFile);
+                    let videoData = videoBuffer.toString('base64');
+                    result.videoFile = {
+                        type : 'video/x-msvideo',
+                        data: videoData
+                    };
+                    fs.unlinkSync(tempFile);
+                    resolve(result);
+               }
+                    
             } else {
                 await  fs.rename( tempFile, resultFile, () => {
                     let videoBuffer = fs.readFileSync(resultFile);
@@ -142,6 +150,7 @@ export const webhook = async (req, res) => {
         });
     }
     const files = {audio: data.audioFile, video: data.videoFile}
+    console.log(files)
     let upload = await UploadTable.findOne({_id: data.resource_identifier})
     try {
         await async.forEachOf(files, async (value, key) => {
