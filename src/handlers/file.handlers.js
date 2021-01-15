@@ -89,7 +89,7 @@ export const uploadFileHandle = async (req, res) => {
                 type: 'video/x-msvideo',
                 data: base64data
               },
-              webhook_url: process.env.SERVER_URL + '/conversion/webhook',
+              webhook_url: process.env.SERVER_URL + '/file/webhook',
               resource_identifier: uploadObj._id
             }
 
@@ -293,5 +293,76 @@ export const downloadCsvData = async (req, res) => {
   } catch (err) {
     console.log(err)
     return res.status(500).json({message: err})
+  }
+}
+
+export const webhook = async (req, res) => {
+  const data = req.body;
+  console.log('hook coold')
+  let tempFileName  = v1();
+  const audioFile = `./uploads/${tempFileName + '.wav'}`;
+  const videoFile = `./uploads/${tempFileName + '.mp4'}`;
+  if (!data.videoFile || !data.audioFile ||  !data.resource_identifier)
+  {
+      return res.status(400).json({
+          message: 'Missing required params'
+      });
+  }
+  const files = {audio: data.audioFile, video: data.videoFile}
+  console.log(files)
+  let upload = await UploadTable.findOne({_id: data.resource_identifier})
+  try {
+      await async.forEachOf(files, async (value, key) => {
+          if (key === 'video')
+          {
+              await fs.writeFile(videoFile, value.data, 'base64', async (err) => {
+                  if (err)
+                  {
+                      console.log(err);
+                      return  false;
+                  }
+                  const result = await uploadFile(videoFile, videoFile,  '')
+                  if (result.success)
+                  {
+                      let options = {
+                          name : tempFileName+'.mp4',
+                          audio_generated: 1
+                      }
+                      await UploadService.updateTable(upload._id, options);
+                  }
+                  fs.unlinkSync(videoFile)
+              })
+          }
+          else {
+              setTimeout(async () => {
+                  await fs.writeFile(audioFile, value.data, 'base64', async (err, resultFile) => {
+                      if (err) {
+                          console.log(err);
+                          return false;
+                      }
+                      const result = await uploadFile(audioFile, audioFile,  '');
+                      if (result.success)
+                      {
+                          let audioFilePath = gcs+ '/'+tempFileName+'.wav';
+                          let transcription = await googleSpeechTranscription(audioFilePath)
+                          let transcriptionObj = await TranscriptionService.createTable({
+                              upload_id: upload._id,
+                              user_id: upload.user_id,
+                              text: transcription.transcriptText,
+                              created_at: upload.created_at
+                          })
+                          await UploadService.storeTranscripts(transcriptionObj, upload._id);
+                      }
+                      fs.unlinkSync(audioFile)
+                  });
+              }, 1500)
+          }
+      })
+      return res.status(200).json({
+          message: 'Success'
+      });
+  }
+  catch (e) {
+      return  res.status(500).json({message : e})
   }
 }

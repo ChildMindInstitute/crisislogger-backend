@@ -9,6 +9,7 @@ router.post('/upload', handlers.uploadFileHandle)
 router.post('/conversion_finished', handlers.uploadFileHandle)
 router.get('/transcriptions', handlers.getGalleryData)
 router.post('/text', handlers.uploadTextHandle)
+router.post('/webhook', handlers.webhook)
 router.get('/downloadCsv',[checkToken,checkAdmin], handlers.downloadCsvData)
 export default router
 
