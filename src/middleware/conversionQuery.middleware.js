@@ -4,8 +4,9 @@ import axios from 'axios';
 export default (req, res, next) => {
   req.asyncQuery = queue( async (task, callback) => {
     const result = await task();
-
-    axios.post(result.webhook_url, result, {
+    if (result)
+    {
+      axios.post(result.webhook_url, result, {
         headers: {
             'Content-Type': 'application/json',
         }
@@ -13,6 +14,9 @@ export default (req, res, next) => {
     .then((response) => {
     }, (error) => {
     });
+    }
+    
   }, 1);
+  await req.asyncQuery.drain()
   next();
 }
