@@ -254,7 +254,7 @@ export const getAccount = async (req, res) => {
   try {
     if (req.user && req.user.email) {
       let where_from = req.headers.origin.split('//')[1];
-      let user = await UserService.getUserIdByEmail(req.user.email, where_from)
+      let user = await UserService.getUserByEmail(req.user.email, where_from)
       if (user) {
         return res.status(200).json({result: user})
       } else {
