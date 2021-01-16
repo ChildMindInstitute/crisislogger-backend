@@ -392,10 +392,8 @@ export const processFailedUploads =  async() => {
                 'Content-Type': 'application/json',
               }
             });
-            return res.json({upload_id: upload._id})
           } catch (err) {
             console.log(err)
-            return res.status(500).json({message: 'Error with convert file'})
           }
     })
   }
