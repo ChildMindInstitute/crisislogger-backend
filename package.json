@@ -31,7 +31,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-fileupload": "^1.1.7-alpha.3",
-    "express-jwt": "^5.3.3",
+    "express-jwt": "^6.0.0",
     "ffmpeg-static": "^4.2.2",
     "ffprobe": "^1.1.0",
     "ffprobe-static": "^3.0.0",
