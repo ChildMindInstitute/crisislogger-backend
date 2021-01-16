@@ -6,12 +6,7 @@ import FileType from 'file-type';
 import {uploadFile} from "../api/googleCloudStorage";
 import {gcs} from '../../config'
 import {googleSpeechTranscription} from "../api/googleSpeech";
-import async from 'async';
-import UploadTable from "../database/models/uploadTable.model";
-import UploadTableService from "../database/services/uploadTable.service";
-import TranscriptionModelService from "../database/services/transcription.service";
-const UploadService = new UploadTableService()
-const TranscriptionService = new TranscriptionModelService()
+
 /**
  * Convert file to mp4
  * @param {String} input Input file path
@@ -87,6 +82,7 @@ const createFile = (data) => {
             const fileType = await FileType.fromFile(tempFile);
             if (fileType.ext !== 'mp4') {
                const converted =  await convert(tempFile, resultFile)
+               console.log(converted)
                if (converted)
                {
                     let videoBuffer = fs.readFileSync(resultFile);
@@ -98,17 +94,6 @@ const createFile = (data) => {
                     fs.unlinkSync(tempFile);
                     resolve(result);
                }
-               else {
-                    let videoBuffer = fs.readFileSync(resultFile);
-                    let videoData = videoBuffer.toString('base64');
-                    result.videoFile = {
-                        type : 'video/x-msvideo',
-                        data: videoData
-                    };
-                    fs.unlinkSync(tempFile);
-                    resolve(result);
-               }
-                    
             } else {
                 await  fs.rename( tempFile, resultFile, () => {
                     let videoBuffer = fs.readFileSync(resultFile);
@@ -132,7 +117,6 @@ export const convertVideoToMp4 = (req, res) => {
         });
 
     req.asyncQuery.push(() => createFile(data), () => {});
-
     res.status(200).json({
         message: 'Ok'
     });

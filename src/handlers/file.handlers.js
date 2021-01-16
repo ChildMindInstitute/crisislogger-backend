@@ -8,7 +8,8 @@ import fs, {writeFile} from 'fs'
 import {v1} from 'uuid'
 import JWT from 'jsonwebtoken'
 import axios from "axios";
-
+import async from 'async';
+import UploadTable from "../database/models/uploadTable.model";
 const UploadService = new UploadTableService()
 const TranscriptionService = new TranscriptionModelService()
 const TextDBService = new TextService()
@@ -298,7 +299,6 @@ export const downloadCsvData = async (req, res) => {
 
 export const webhook = async (req, res) => {
   const data = req.body;
-  console.log('hook coold')
   let tempFileName  = v1();
   const audioFile = `./uploads/${tempFileName + '.wav'}`;
   const videoFile = `./uploads/${tempFileName + '.mp4'}`;
@@ -309,7 +309,6 @@ export const webhook = async (req, res) => {
       });
   }
   const files = {audio: data.audioFile, video: data.videoFile}
-  console.log(files)
   let upload = await UploadTable.findOne({_id: data.resource_identifier})
   try {
       await async.forEachOf(files, async (value, key) => {
@@ -363,6 +362,7 @@ export const webhook = async (req, res) => {
       });
   }
   catch (e) {
+      console.log(e)
       return  res.status(500).json({message : e})
   }
 }

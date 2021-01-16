@@ -9,13 +9,16 @@ export default (req, res, next) => {
       axios.post(result.webhook_url, result, {
         headers: {
             'Content-Type': 'application/json',
-        }
+        },
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity
     })
-    .then((response) => {
-    }, (error) => {
-    });
-    }
-    
+    .then(response => {
+      console.log('response')
+    }).catch(error => {
+      console.log('error')
+    })
+  }
   }, 1);
   await req.asyncQuery.drain()
   next();
