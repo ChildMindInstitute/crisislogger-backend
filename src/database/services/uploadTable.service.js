@@ -12,7 +12,10 @@ class UploadTableService {
     async getUserUploads(user_id, where_from){
         return await UploadTable.find({user_id: user_id, where_from: where_from}).populate('transcripts');
     }
-    
+    async getFaildUploads()
+    {
+        return await UploadTable.find({status: 'processing'});
+    }
     async getUploadById(id){
         return await UploadTable.findOne({_id:id}).populate({path:'transcripts'}).populate({path:'user'})
     }

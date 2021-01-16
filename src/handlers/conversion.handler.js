@@ -82,7 +82,6 @@ const createFile = (data) => {
             const fileType = await FileType.fromFile(tempFile);
             if (fileType.ext !== 'mp4') {
                const converted =  await convert(tempFile, resultFile)
-               console.log(converted)
                if (converted)
                {
                     let videoBuffer = fs.readFileSync(resultFile);

@@ -24,8 +24,17 @@ var userSchema = new Schema({
     role: Number,
     token: String,
     referral_code: String,
-    country: String
+    country: String,
+    where_from: String,
+    remember_token: String,
+    updated_at: String,
+    openhumans_access_token: String,
+    openhumans_refresh_token: String,
+    openhumans_project_member_id: String,
+    state: String,
+    sqlId: String,
+    user_type: String
 });
-userSchema.plugin(_mongooseEncryption2.default, { secret: process.env.APP_KEY, encryptedFields: ['name', 'country', 'email'] });
+userSchema.plugin(_mongooseEncryption2.default, { secret: process.env.APP_KEY, encryptedFields: ['name', 'country'] });
 var User = Model('User', userSchema);
 exports.default = User;

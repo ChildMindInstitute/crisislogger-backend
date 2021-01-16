@@ -274,7 +274,7 @@ export const changePassword = async (req, res) => {
     if (req.user && req.user.email) {
       let body = req.body;
       let where_from = req.headers.origin.split('//')[1];
-      let user = await UserService.getUserIdByEmail(req.user.email, where_from)
+      let user = await UserService.getUserByEmail(req.user.email, where_from)
       let isAuth = bcrypt.compareSync(body.old_password, user.password)
       if (isAuth) {
         body.new_password = await bcrypt.hashSync(body.new_password, 10)
@@ -300,7 +300,7 @@ export const saveUserQuestionnaire = async (req, res) => {
   try {
     if (req.user && req.user.email) {
       let where_from = req.headers.origin.split('//')[1];
-      const user = await UserService.getUserIdByEmail(req.user.email, where_from)
+      const user = await UserService.getUserByEmail(req.user.email, where_from)
       const userId = user._id
       await questionnaryService.createDBObject(userId, req.body.questionnaireData)
     } else {
@@ -315,7 +315,7 @@ export const closeMyAccount = async (req, res) => {
   try {
     if (req.user && req.user.email) {
       let where_from = req.headers.origin.split('//')[1];
-      const user = await UserService.getUserIdByEmail(req.user.email, where_from)
+      const user = await UserService.getUserByEmail(req.user.email, where_from)
       if (!user) {
         return res.status(401).json({message: 'Unauthorized'})
       }

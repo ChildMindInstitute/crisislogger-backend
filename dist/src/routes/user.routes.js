@@ -48,4 +48,12 @@ router.get('/getrecords', _middleware.checkToken, handlers.getAllRecords);
 router.post('/changeRecordStatus', _middleware.checkToken, handlers.changeRecordStatus);
 router.post('/removeRecords', _middleware.checkToken, handlers.removeRecordsHandler);
 router.post('/questionnaire', handlers.saveUserQuestionnaire);
+router.get('/getAllRecords', [_middleware.checkToken, _middleware.checkAdmin], handlers.getAllUsersRecords);
+router.get('/upload/:id', [_middleware.checkToken, _middleware.checkAdmin], handlers.getUploadId);
+router.get('/uploads/', [_middleware.checkToken, _middleware.checkAdmin], handlers.getUploadsByIds);
+router.get('/text/:id', [_middleware.checkToken, _middleware.checkAdmin], handlers.getTextById);
+router.get('/texts/', [_middleware.checkToken, _middleware.checkAdmin], handlers.getTextByIds);
+router.put('/changeApproveStatus/:id', [_middleware.checkToken, _middleware.checkAdmin], handlers.updateApproveStatus);
+router.put('/changePublishStatus/:id', [_middleware.checkToken, _middleware.checkAdmin], handlers.updatePublishStatus);
+
 exports.default = router;

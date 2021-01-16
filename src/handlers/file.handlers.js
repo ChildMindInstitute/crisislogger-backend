@@ -325,7 +325,8 @@ export const webhook = async (req, res) => {
                   {
                       let options = {
                           name : tempFileName+'.mp4',
-                          audio_generated: 1
+                          audio_generated: 1,
+                          status: 'finished' // we need to change the status of uploaded records
                       }
                       await UploadService.updateTable(upload._id, options);
                   }
@@ -366,3 +367,36 @@ export const webhook = async (req, res) => {
       return  res.status(500).json({message : e})
   }
 }
+export const processFailedUploads =  async() => {
+  let uploads = await UploadService.getFaildUploads();
+  console.log(uploads)
+  if(uploads && uploads.length)
+  {
+    const uploadDir = './uploads/';
+    uploads.forEach(async (upload) => {
+      try {
+            let buffer = fs.readFileSync(uploadDir+ upload.name);
+            let base64data = buffer.toString('base64');
+            const convertRequest = {
+              file: {
+                type: 'video/x-msvideo',
+                data: base64data
+              },
+              webhook_url: process.env.SERVER_URL + '/file/webhook',
+              resource_identifier: upload._id
+            }
+
+
+            await axios.post(process.env.CONVERT_SERVER + '/conversion/video', convertRequest, {
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            });
+            return res.json({upload_id: upload._id})
+          } catch (err) {
+            console.log(err)
+            return res.status(500).json({message: 'Error with convert file'})
+          }
+    })
+  }
+} 

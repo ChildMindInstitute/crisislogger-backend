@@ -20,6 +20,5 @@ export default (req, res, next) => {
     })
   }
   }, 1);
-  await req.asyncQuery.drain()
   next();
 }
