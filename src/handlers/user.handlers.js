@@ -223,10 +223,6 @@ export const userUpdateHandler = async (req, res) => {
         {role: user.role, email: req.body.email, host: where_from},
         process.env.SECRET_KEY
       )
-      let userObject = await UserService.login(req.body.email, where_from)
-      if (userObject !== null) {
-        return res.status(400).json({message: "Email address already exist"});
-      }
       const userObj = {
         email: req.body.email,
         name: req.body.name,
