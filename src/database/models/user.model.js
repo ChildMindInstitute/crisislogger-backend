@@ -22,6 +22,6 @@ const userSchema = new Schema({
     sqlId:String,
     user_type: String
 })
-userSchema.plugin(encrypt,{ secret: process.env.APP_KEY, encryptedFields: ['name', 'country'] });
+userSchema.plugin(encrypt,{ secret: process.env.APP_KEY, encryptedFields: ['country'] });
 const User =  Model('User', userSchema)
 export default User

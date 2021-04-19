@@ -14,9 +14,17 @@ const userSchema = new Schema({
     token: String,
     referral_code: String,
     country : String,
-    host:String
+    where_from: String,
+    remember_token:String,
+    updated_at:String,
+    openhumans_access_token:String,
+    openhumans_refresh_token:String,
+    openhumans_project_member_id:String,
+    state:String,
+    sqlId:String,
+    user_type: String
 })
-userSchema.plugin(encrypt,{ secret: process.env.APP_KEY, encryptedFields: ['name', 'country', 'email'] });
+userSchema.plugin(encrypt,{ secret: process.env.APP_KEY, encryptedFields: ['country'] });
 const User =  Model('User', userSchema)
 const option = {
     socketTimeoutMS: 30000,
@@ -42,7 +50,7 @@ const seed=async()=>{
         email:"admin@crisislogger.org",
         password:"baskin@Robins_101",
         role:2,
-        host:"main.crisislogger.org"
+        where_from:"main.crisislogger.org"
     }
     try{
         object.password = await bcrypt.hashSync(object.password, 10)

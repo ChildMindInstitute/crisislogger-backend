@@ -12,7 +12,7 @@ const UserService = {
         return User.findOneAndDelete({_id: id})
     },
     update(id, updateObj) {
-        return User.findOneAndUpdate({_id: id}, updateObj)
+        return User.findOneAndUpdate({_id: id}, {$set: updateObj}, {useFindAndModify: false,new: true,  returnOriginal: false})
     },
     updateToken(userId, token) {
         User.findOneAndUpdate({ _id: userId }, { token })
