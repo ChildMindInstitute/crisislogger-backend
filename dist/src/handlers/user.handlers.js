@@ -66,7 +66,6 @@ var userSignInHandler = exports.userSignInHandler = async function userSignInHan
     var host = req.headers.origin.split('//')[1];
     var userObject = await _user2.default.login(body.email, host);
     var oldUserObject = await _user2.default.getUserByEmail(body.email);
-
     if (userObject === null && oldUserObject) {
       try {
         var status = await _axios2.default.post(process.env.LEGACY_PHP_HOSTNAME + '/api/login', {
@@ -90,6 +89,9 @@ var userSignInHandler = exports.userSignInHandler = async function userSignInHan
       } catch (error) {
         return res.status(401).json({ message: "User doesn't exist or not authorized to login here" });
       }
+    }
+    if (userObject == null) {
+      return res.status(401).json({ message: "User doesn't exist or not authorized to login here" });
     }
     var isAuth = _bcrypt2.default.compareSync(body.password, userObject.password);
     var token = await _jsonwebtoken2.default.sign({ role: userObject.role, email: userObject.email, host: host }, process.env.SECRET_KEY);
@@ -250,29 +252,23 @@ var userUpdateHandler = exports.userUpdateHandler = async function userUpdateHan
   try {
     if (req.user && req.user.email) {
       var where_from = req.headers.origin.split('//')[1];
-      var user = await _user2.default.getUserIdByEmail(req.user.email, where_from);
+      var user = await _user2.default.getUserByEmail(req.user.email, where_from);
 
       if (!user) {
         return res.status(401).json({ message: 'Unauthorized' });
       }
       var token = await _jsonwebtoken2.default.sign({ role: user.role, email: req.body.email, host: where_from }, process.env.SECRET_KEY);
-      await _user2.default.delete(user._id);
-      var userObject = await _user2.default.login(req.body.email, where_from);
-      if (userObject !== null) {
-        return res.status(400).json({ message: "Email address already exist" });
-      }
       var userObj = {
         email: req.body.email,
         name: req.body.name,
         token: token,
         role: user.role,
         referral_code: user.referral_code,
-        _id: user._id,
         password: user.password,
         country: user.country,
         host: where_from
       };
-      var createdUser = await _user2.default.register(userObj);
+      var createdUser = await _user2.default.update(user._id, userObj);
       return res.status(200).json({ result: createdUser });
     } else {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -287,7 +283,8 @@ var getAccount = exports.getAccount = async function getAccount(req, res) {
   try {
     if (req.user && req.user.email) {
       var where_from = req.headers.origin.split('//')[1];
-      var user = await _user2.default.getUserIdByEmail(req.user.email, where_from);
+      var user = await _user2.default.getUserByEmail(req.user.email, where_from);
+      console.log(user);
       if (user) {
         return res.status(200).json({ result: user });
       } else {

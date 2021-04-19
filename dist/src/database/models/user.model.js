@@ -35,6 +35,6 @@ var userSchema = new Schema({
     sqlId: String,
     user_type: String
 });
-userSchema.plugin(_mongooseEncryption2.default, { secret: process.env.APP_KEY, encryptedFields: ['name', 'country'] });
+userSchema.plugin(_mongooseEncryption2.default, { secret: process.env.APP_KEY, encryptedFields: ['country'] });
 var User = Model('User', userSchema);
 exports.default = User;

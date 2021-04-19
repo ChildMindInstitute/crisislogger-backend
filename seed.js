@@ -50,7 +50,7 @@ const seed=async()=>{
         email:"admin@crisislogger.org",
         password:"baskin@Robins_101",
         role:2,
-        where_from:"main.crisislogger.org"
+        where_from:"localhost:3000"
     }
     try{
         object.password = await bcrypt.hashSync(object.password, 10)

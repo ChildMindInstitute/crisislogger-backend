@@ -24,7 +24,7 @@ var UserService = {
         return _user2.default.findOneAndDelete({ _id: id });
     },
     update: function update(id, updateObj) {
-        return _user2.default.findOneAndUpdate({ _id: id }, updateObj);
+        return _user2.default.findOneAndUpdate({ _id: id }, { $set: updateObj }, { useFindAndModify: false, new: true, returnOriginal: false });
     },
     updateToken: function updateToken(userId, token) {
         _user2.default.findOneAndUpdate({ _id: userId }, { token: token });

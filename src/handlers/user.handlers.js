@@ -234,7 +234,7 @@ export const userUpdateHandler = async (req, res) => {
         referral_code: user.referral_code,
         password: user.password,
         country: user.country,
-        host: where_from
+        where_from: where_from
       }
       let createdUser = await UserService.update(user._id, userObj)
       return res.status(200).json({result: createdUser})
