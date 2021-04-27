@@ -14,7 +14,7 @@ class TextService {
         return await Text.find({_id:{$in:ids}}).populate({path:'transcripts'}).populate({path:'user_id'})
     }
     async updateApproveStatus(id,status){
-        return await Text.findOneAndUpdate({_id:id},{approved:!status},{new:true}).populate({path:'transcripts'})
+        return await Text.findOneAndUpdate({_id:id},{approved:!status},{useFindAndModify: false, new: true,  returnOriginal: false}).populate({path:'transcripts'})
         
     }
     async getTextWithFilter(filter){
