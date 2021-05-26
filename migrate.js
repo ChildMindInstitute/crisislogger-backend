@@ -33,11 +33,11 @@ export default async function  migrateDb  (){
         upload['sqlId'] = upload.id;
         upload['original_name']= upload.original_file_name;
         upload['approved']= !upload.hide;
-        upload['published']= !upload.published;
+        upload['published']= upload.published;
         upload['transcript_rate']= upload.rating;
         upload['where_from']= upload.where_from? upload.where_from.split("//")[1]: 'crisislogger.org';
         (new UploadTable(upload)).save().then(async upload=>{
-          // [add transcriptions with userId]
+          // [add transcriptions with user
           await User.findOneAndUpdate({_id: user._id}, {$set: {where_from: upload['where_from']}}, {useFindAndModify: false, new: true,  returnOriginal: false})
           await addUploadTranscription(upload,user)
         });
