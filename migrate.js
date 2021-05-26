@@ -23,6 +23,7 @@ export default async function  migrateDb  (){
       data['texts'].filter(text=>text.user_id == user.sqlId).forEach(async text=>{
         text['user_id'] = user._id;
         text['sqlId'] = text.id;
+        text['approved']= text.hide == null ? false: !text.hide;
         text['where_from']= text.where_from? text.where_from.split("//")[1]: 'crisislogger.org';
         await User.findOneAndUpdate({_id: user._id}, {$set: {where_from: text['where_from']}}, {useFindAndModify: false, new: true,  returnOriginal: false})
         await (new Text(text)).save();
@@ -32,10 +33,11 @@ export default async function  migrateDb  (){
         upload['user_id'] = user._id;
         upload['sqlId'] = upload.id;
         upload['original_name']= upload.original_file_name;
-        upload['approved']= !upload.hide;
+        upload['approved']= upload.hide == null ? false: !upload.hide;
         upload['published']= upload.published;
         upload['transcript_rate']= upload.rating;
         upload['where_from']= upload.where_from? upload.where_from.split("//")[1]: 'crisislogger.org';
+        console.log(upload)
         (new UploadTable(upload)).save().then(async upload=>{
           // [add transcriptions with user
           await User.findOneAndUpdate({_id: user._id}, {$set: {where_from: upload['where_from']}}, {useFindAndModify: false, new: true,  returnOriginal: false})
@@ -62,7 +64,7 @@ export default async function  migrateDb  (){
   // [add uploads were userId not defined]
   data['uploads'].filter(upload=>upload.user_id == undefined || upload.user_id == null).forEach(upload=>{
     upload['sqlId'] = upload.id;
-    upload['approved']= !upload.hide;
+    upload['approved']= upload.hide == null ? false: !upload.hide;
     upload['where_from']= upload.where_from? upload.where_from.split("//")[1]: '';
     upload['published']= upload.published;
     upload['transcript_rate']= upload.rating;
