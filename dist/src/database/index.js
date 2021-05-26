@@ -31,7 +31,8 @@ db.on('error', function (err) {
 
 db.on('open', function () {
     console.log('Database success connection');
-    if (process.env.MIGRATE_DB === 1) {
+    console.log(process.env.MIGRATE_DB);
+    if (process.env.MIGRATE_DB == 1) {
         (0, _migrate2.default)();
     }
 });

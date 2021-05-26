@@ -266,7 +266,7 @@ var userUpdateHandler = exports.userUpdateHandler = async function userUpdateHan
         referral_code: user.referral_code,
         password: user.password,
         country: user.country,
-        host: where_from
+        where_from: where_from
       };
       var createdUser = await _user2.default.update(user._id, userObj);
       return res.status(200).json({ result: createdUser });
@@ -284,7 +284,6 @@ var getAccount = exports.getAccount = async function getAccount(req, res) {
     if (req.user && req.user.email) {
       var where_from = req.headers.origin.split('//')[1];
       var user = await _user2.default.getUserByEmail(req.user.email, where_from);
-      console.log(user);
       if (user) {
         return res.status(200).json({ result: user });
       } else {

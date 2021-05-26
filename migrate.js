@@ -5,6 +5,7 @@ import TranscriptionModel from "./src/database/models/transcription.model";
 import Questionnaire from "./src/database/models/questionnary.model";
 import data from './data.json'
 export default async function  migrateDb  (){
+  console.log('migrating')
   let users = data['users'].map(async user=>{
     user['role'] = (user.is_admin===1)?2:1;
     user['sqlId'] = user.id;
@@ -22,19 +23,22 @@ export default async function  migrateDb  (){
       data['texts'].filter(text=>text.user_id == user.sqlId).forEach(async text=>{
         text['user_id'] = user._id;
         text['sqlId'] = text.id;
+        text['where_from']= text.where_from? text.where_from.split("//")[1]: 'crisislogger.org';
+        await User.findOneAndUpdate({_id: user._id}, {$set: {where_from: text['where_from']}}, {useFindAndModify: false, new: true,  returnOriginal: false})
         await (new Text(text)).save();
       })
       // [add uploads]
-      data['uploads'].filter(upload=>upload.user_id == user.sqlId).forEach(upload=>{
+      data['uploads'].filter(upload=>upload.user_id == user.sqlId).forEach( upload=>{
         upload['user_id'] = user._id;
         upload['sqlId'] = upload.id;
         upload['original_name']= upload.original_file_name;
         upload['approved']= !upload.hide;
         upload['published']= !upload.published;
         upload['transcript_rate']= upload.rating;
-        upload['where_from']= upload.where_from? upload.where_from.split("//")[1]: '';
+        upload['where_from']= upload.where_from? upload.where_from.split("//")[1]: 'crisislogger.org';
         (new UploadTable(upload)).save().then(async upload=>{
           // [add transcriptions with userId]
+          await User.findOneAndUpdate({_id: user._id}, {$set: {where_from: upload['where_from']}}, {useFindAndModify: false, new: true,  returnOriginal: false})
           await addUploadTranscription(upload,user)
         });
       })
@@ -52,6 +56,7 @@ export default async function  migrateDb  (){
   // [add texts without userIds]
   data['texts'].filter(text=>text.user_id == undefined || text.user_id == null).forEach(text=>{
     text['sqlId'] = text.sqlId;
+    text['where_from']= text.where_from? text.where_from.split("//")[1]: 'crisislogger.org';
     (new Text(text)).save();
   })
   // [add uploads were userId not defined]
@@ -74,6 +79,7 @@ async function addUploadTranscription (upload,user){
     if(transcription){
       transcription['upload_id'] = upload._id;
       transcription['user_id'] = user._id;
+      transcription['where_from'] = upload.where_from;
       transcription['sqlId'] = transcription.id;
       transcription = await(new TranscriptionModel(transcription)).save();
       upload["transcripts"] = transcription._id
@@ -84,6 +90,7 @@ async function addUploadTranscription (upload,user){
     if(transcription){
       transcription['upload_id'] = upload._id;
       transcription['sqlId'] = transcription.id;
+      transcription['where_from'] = upload.where_from;
       transcription = await (new TranscriptionModel(transcription)).save();
       upload["transcripts"] = transcription._id
       return  await upload.save();

@@ -17,7 +17,8 @@ db.on('error', err => {
 
 db.on('open', () => {
     console.log('Database success connection')
-    if(process.env.MIGRATE_DB === 1){
+    console.log(process.env.MIGRATE_DB)
+    if(process.env.MIGRATE_DB == 1){
         migrateDb();
     }
 })
