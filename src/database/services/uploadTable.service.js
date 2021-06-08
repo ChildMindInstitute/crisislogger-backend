@@ -1,5 +1,6 @@
 import { retry } from 'async';
 import UploadTable from '../models/uploadTable.model'
+import {text} from "body-parser";
 
 class UploadTableService {
     createTable(createObj) {
@@ -49,11 +50,11 @@ class UploadTableService {
     async paginate(page, searchText, domain) {
         const page_size = 8;
         const skip = (page - 1)* page_size;
+        let ids = [];
         if (searchText && searchText.length){
-            return await UploadTable.find({approved: true, where_from: domain, share: {$gte : 1}}).populate({
-                path: 'transcripts',
-                match: {text: {$regex: searchText}}
-            }).skip(skip).limit(page_size)
+            ids = [...await (await this.getUploadsContainingText(searchText)).map(el => el._id)]
+            let res = [ ... await (await UploadTable.find({approved: true, where_from: domain, share: {$gte : 1}, _id: {"$in": ids}}))]
+            return res.slice((page - 1) * page_size, page * page_size)
         }
         else {
             return await UploadTable.find({approved: true, where_from: domain, share: {$gte : 1}}).populate('transcripts').skip(skip).limit(page_size)
