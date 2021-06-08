@@ -53,7 +53,7 @@ class UploadTableService {
         let ids = [];
         if (searchText && searchText.length){
             ids = [...await (await this.getUploadsContainingText(searchText)).map(el => el._id)]
-            let res = [ ... await (await UploadTable.find({approved: true, where_from: domain, share: {$gte : 1}, _id: {"$in": ids}}))]
+            let res = [ ... await (await UploadTable.find({approved: true, where_from: domain, share: {$gte : 1}, _id: {"$in": ids}}).populate('transcripts'))]
             return res.slice((page - 1) * page_size, page * page_size)
         }
         else {
